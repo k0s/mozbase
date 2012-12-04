@@ -2,18 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
-import os
 from setuptools import setup
 
 PACKAGE_VERSION = '0.4'
-
-# get documentation from the README
-try:
-    here = os.path.dirname(os.path.abspath(__file__))
-    description = file(os.path.join(here, 'README.md')).read()
-except (OSError, IOError):
-    description = ''
 
 # dependencies
 deps = []
