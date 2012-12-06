@@ -40,3 +40,6 @@ Example API usage::
 
 See also a comparable implementation for `selenium <http://seleniumhq.org/>`_:
 http://code.google.com/p/selenium/source/browse/trunk/py/selenium/webdriver/firefox/firefox_binary.py
+
+.. automodule:: mozrunner
+   :members:
