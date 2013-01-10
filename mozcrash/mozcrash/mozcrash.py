@@ -15,6 +15,7 @@ import tempfile
 import urllib2
 import zipfile
 
+from mozfile import extract_zip
 from mozfile import is_url
 
 # def extractall(zip, path = None):
@@ -99,7 +100,7 @@ def check_for_crashes(dump_directory, symbols_path,
         # processing all crashes)
         symbols_path = tempfile.mkdtemp()
         zfile = zipfile.ZipFile(symbols_file, 'r')
-        extractall(zfile, symbols_path)
+        extract_zip(zfile, symbols_path)
         zfile.close()
 
     try:
