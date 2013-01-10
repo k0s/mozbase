@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import urllib2
+import zipfile
 
 from mozfile import is_url
 
