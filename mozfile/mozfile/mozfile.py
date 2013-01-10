@@ -28,7 +28,15 @@ def extract_tarball(src, dest):
 def extract_zip(src, dest):
     """extract a zip file"""
 
-    bundle = zipfile.ZipFile(src)
+    if isinstance(src, zipfile.ZipFile):
+        bundle = src
+    else:
+        try:
+            bundle = zipfile.ZipFile(src)
+        except Exception, e:
+            print "src: %s" % src
+            raise
+
     namelist = bundle.namelist()
 
     for name in namelist:

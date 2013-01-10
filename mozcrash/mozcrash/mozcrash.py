@@ -18,31 +18,6 @@ import zipfile
 from mozfile import extract_zip
 from mozfile import is_url
 
-# def extractall(zip, path = None):
-#     """
-#     Compatibility shim for Python 2.6's ZipFile.extractall.
-#     """
-#     if hasattr(zip, "extractall"):
-#         return zip.extractall(path)
-
-#     if path is None:
-#         path = os.curdir
-
-#     for name in self._zipfile.namelist():
-#         filename = os.path.normpath(os.path.join(path, name))
-#         if name.endswith("/"):
-#             os.makedirs(filename)
-#         else:
-#             path = os.path.split(filename)[0]
-#             if not os.path.isdir(path):
-#                 os.makedirs(path)
-
-#         try:
-#             f = open(filename, "wb")
-#             f.write(zip.read(name))
-#         finally:
-#             f.close()
-
 def check_for_crashes(dump_directory, symbols_path,
                       stackwalk_binary=None,
                       dump_save_path=None,
@@ -87,7 +62,7 @@ def check_for_crashes(dump_directory, symbols_path,
     if len(dumps) == 0:
         return False
 
-    remove_symbols = False 
+    remove_symbols = False
     # If our symbols are at a remote URL, download them now
     if symbols_path and is_url(symbols_path):
         log.info("Downloading symbols from: %s", symbols_path)
