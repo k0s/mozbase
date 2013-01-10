@@ -4,44 +4,42 @@
 
 __all__ = ['check_for_crashes']
 
-import os, sys, glob, urllib2, tempfile, re, subprocess, shutil, urlparse, zipfile
+import glob
 import mozlog
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import urllib2
 
-def is_url(thing):
-  """
-  Return True if thing looks like a URL.
-  """
-  # We want to download URLs like http://... but not Windows paths like c:\...
-  parsed = urlparse.urlparse(thing)
-  if 'scheme' in parsed:
-      return len(parsed.scheme) >= 2
-  else:
-      return len(parsed[0]) >= 2
+from mozfile import is_url
 
-def extractall(zip, path = None):
-    """
-    Compatibility shim for Python 2.6's ZipFile.extractall.
-    """
-    if hasattr(zip, "extractall"):
-        return zip.extractall(path)
+# def extractall(zip, path = None):
+#     """
+#     Compatibility shim for Python 2.6's ZipFile.extractall.
+#     """
+#     if hasattr(zip, "extractall"):
+#         return zip.extractall(path)
 
-    if path is None:
-        path = os.curdir
+#     if path is None:
+#         path = os.curdir
 
-    for name in self._zipfile.namelist():
-        filename = os.path.normpath(os.path.join(path, name))
-        if name.endswith("/"):
-            os.makedirs(filename)
-        else:
-            path = os.path.split(filename)[0]
-            if not os.path.isdir(path):
-                os.makedirs(path)
+#     for name in self._zipfile.namelist():
+#         filename = os.path.normpath(os.path.join(path, name))
+#         if name.endswith("/"):
+#             os.makedirs(filename)
+#         else:
+#             path = os.path.split(filename)[0]
+#             if not os.path.isdir(path):
+#                 os.makedirs(path)
 
-        try:
-            f = open(filename, "wb")
-            f.write(zip.read(name))
-        finally:
-            f.close()
+#         try:
+#             f = open(filename, "wb")
+#             f.write(zip.read(name))
+#         finally:
+#             f.close()
 
 def check_for_crashes(dump_directory, symbols_path,
                       stackwalk_binary=None,
@@ -61,11 +59,11 @@ def check_for_crashes(dump_directory, symbols_path,
     `symbols_path` should be a path to a directory containing symbols to use for
     dump processing. This can either be a path to a directory containing Breakpad-format
     symbols, or a URL to a zip file containing a set of symbols.
-                  
+
     If `dump_save_path` is set, it should be a path to a directory in which to copy minidump
     files for safekeeping after a stack trace has been printed. If not set, the environment
     variable MINIDUMP_SAVE_PATH will be checked and its value used if it is not empty.
-                    
+
     If `test_name` is set it will be used as the test name in log output. If not set the
     filename of the calling function will be used.
 

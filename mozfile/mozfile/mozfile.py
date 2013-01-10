@@ -5,9 +5,10 @@
 import os
 import tarfile
 import tempfile
+import urlparse
 import zipfile
 
-__all__ = ['extract_tarball', 'extract_zip', 'extract', 'rmtree', 'NamedTemporaryFile']
+__all__ = ['extract_tarball', 'extract_zip', 'extract', 'is_url', 'rmtree', 'NamedTemporaryFile']
 
 
 ### utilities for extracting archives
@@ -178,3 +179,15 @@ class NamedTemporaryFile(object):
 
         self.file.__exit__(None, None, None)
         os.unlink(self.__dict__['_path'])
+
+
+ def is_url(thing):
+     """
+     Return True if thing looks like a URL.
+     """
+     # We want to download URLs like http://... but not Windows paths like c:\...
+     parsed = urlparse.urlparse(thing)
+     if 'scheme' in parsed:
+         return len(parsed.scheme) >= 2
+     else:
+         return len(parsed[0]) >= 2
