@@ -181,13 +181,13 @@ class NamedTemporaryFile(object):
         os.unlink(self.__dict__['_path'])
 
 
- def is_url(thing):
-     """
-     Return True if thing looks like a URL.
-     """
-     # We want to download URLs like http://... but not Windows paths like c:\...
-     parsed = urlparse.urlparse(thing)
-     if 'scheme' in parsed:
-         return len(parsed.scheme) >= 2
-     else:
-         return len(parsed[0]) >= 2
+def is_url(thing):
+    """
+    Return True if thing looks like a URL.
+    """
+    # We want to download URLs like http://... but not Windows paths like c:\...
+    parsed = urlparse.urlparse(thing)
+    if 'scheme' in parsed:
+        return len(parsed.scheme) >= 2
+    else:
+        return len(parsed[0]) >= 2
