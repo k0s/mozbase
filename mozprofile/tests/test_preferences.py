@@ -2,19 +2,18 @@
 
 import os
 import shutil
-import subprocess
 import tempfile
 import unittest
+from mozprofile.cli import cli
 from mozprofile.prefs import Preferences
 from mozprofile.profile import Profile
 
 class PreferencesTest(unittest.TestCase):
-    """test mozprofile"""
+    """test mozprofile preferences"""
 
     def run_command(self, *args):
         """
-        runs mozprofile;
-        returns (stdout, stderr, code)
+        invokes mozprofile command line programmatically
         """
         process = subprocess.Popen(args,
                                    stdout=subprocess.PIPE,
@@ -31,7 +30,7 @@ class PreferencesTest(unittest.TestCase):
         compares the results
         cleans up
         """
-        profile, stderr, code = self.run_command(*commandline)
+        profile = self.run_command(*commandline)
         prefs_file = os.path.join(profile, 'user.js')
         self.assertTrue(os.path.exists(prefs_file))
         read = Preferences.read_prefs(prefs_file)
@@ -42,7 +41,7 @@ class PreferencesTest(unittest.TestCase):
 
     def test_basic_prefs(self):
         _prefs = {"browser.startup.homepage": "http://planet.mozilla.org/"}
-        commandline = ["mozprofile"]
+        commandline = []
         _prefs = _prefs.items()
         for pref, value in _prefs:
             commandline += ["--pref", "%s:%s" % (pref, value)]
@@ -54,7 +53,7 @@ class PreferencesTest(unittest.TestCase):
                   ("zoom.minPercent", 30),
                   ("zoom.maxPercent", 300),
                   ("webgl.verbose", 'false')]
-        commandline = ["mozprofile"]
+        commandline = []
         for pref, value in _prefs:
             commandline += ["--pref", "%s:%s" % (pref, value)]
         _prefs = [(i, Preferences.cast(j)) for i, j in _prefs]
@@ -69,22 +68,24 @@ browser.startup.homepage = http://planet.mozilla.org/
 [foo]
 browser.startup.homepage = http://github.com/
 """
-        fd, name = tempfile.mkstemp(suffix='.ini')
-        os.write(fd, _ini)
-        os.close(fd)
-        commandline = ["mozprofile", "--preferences", name]
+        try:
+            fd, name = tempfile.mkstemp(suffix='.ini')
+            os.write(fd, _ini)
+            os.close(fd)
+            commandline = ["--preferences", name]
 
-        # test the [DEFAULT] section
-        _prefs = {'browser.startup.homepage': 'http://planet.mozilla.org/'}
-        self.compare_generated(_prefs, commandline)
+            # test the [DEFAULT] section
+            _prefs = {'browser.startup.homepage': 'http://planet.mozilla.org/'}
+            self.compare_generated(_prefs, commandline)
 
-        # test a specific section
-        _prefs = {'browser.startup.homepage': 'http://github.com/'}
-        commandline[-1] = commandline[-1] + ':foo'
-        self.compare_generated(_prefs, commandline)
+            # test a specific section
+            _prefs = {'browser.startup.homepage': 'http://github.com/'}
+            commandline[-1] = commandline[-1] + ':foo'
+            self.compare_generated(_prefs, commandline)
 
-        # cleanup
-        os.remove(name)
+        finally:
+            # cleanup
+            os.remove(name)
 
     def test_reset_should_remove_added_prefs(self):
         """Check that when we call reset the items we expect are updated"""
@@ -109,8 +110,8 @@ browser.startup.homepage = http://github.com/
                               if line.startswith('#MozRunner Prefs End')]))
 
         profile.reset()
-        self.assertNotEqual(prefs1, \
-                    Preferences.read_prefs(os.path.join(profile.profile, 'user.js')),\
+        self.assertNotEqual(prefs1,
+                            Preferences.read_prefs(os.path.join(profile.profile, 'user.js')),
                             "I pity the fool who left my pref")
 
     def test_magic_markers(self):
