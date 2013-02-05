@@ -2,11 +2,13 @@
 
 import os
 import shutil
+import sys
 import tempfile
 import unittest
 from mozprofile.cli import cli
 from mozprofile.prefs import Preferences
 from mozprofile.profile import Profile
+from StringIO import StringIO
 
 class PreferencesTest(unittest.TestCase):
     """test mozprofile preferences"""
@@ -15,13 +17,25 @@ class PreferencesTest(unittest.TestCase):
         """
         invokes mozprofile command line programmatically
         """
-        process = subprocess.Popen(args,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        stdout = stdout.strip()
-        stderr = stderr.strip()
-        return stdout, stderr, process.returncode
+
+        # The CLI entry point prints the profile path to created
+        # profiles to stdout.  In order to get this, monkey-patch sys.stdout
+        stdout = sys.stdout
+        buffer = StringIO()
+        sys.stdout = buffer
+
+        try:
+            # call the cli function
+            cli(list(args))
+
+            # read stdout
+            output = buffer.getvalue().strip()
+        finally:
+            # restore stdout
+            sys.stdout = stdout
+
+        # return path to profile
+        return output
 
     def compare_generated(self, _prefs, commandline):
         """
@@ -40,6 +54,8 @@ class PreferencesTest(unittest.TestCase):
         shutil.rmtree(profile)
 
     def test_basic_prefs(self):
+        """test setting a pref from the command line entry point"""
+
         _prefs = {"browser.startup.homepage": "http://planet.mozilla.org/"}
         commandline = []
         _prefs = _prefs.items()
@@ -193,9 +209,8 @@ user_pref("webgl.force-enabled", true);
             # make sure you have the original preferences
             prefs = Preferences.read_prefs(user_js)
             self.assertTrue(prefs == original_prefs)
-        except:
+        finally:
             shutil.rmtree(tempdir)
-            raise
 
     def test_json(self):
         _prefs = {"browser.startup.homepage": "http://planet.mozilla.org/"}
