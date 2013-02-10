@@ -206,8 +206,6 @@ user_pref("webgl.force-enabled", true);
             shutil.rmtree(tempdir)
 
     def test_json(self):
-        """ensure our JSON serialization/deserialization is sane"""
-
         _prefs = {"browser.startup.homepage": "http://planet.mozilla.org/"}
         json = '{"browser.startup.homepage": "http://planet.mozilla.org/"}'
 
