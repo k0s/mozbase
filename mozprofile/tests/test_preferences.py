@@ -233,7 +233,7 @@ user_pref("webgl.force-enabled", true);
         fd = tempfile.NamedTemporaryFile(suffix='.js', delete=False)
         path = fd.name
         try:
-            preferences.write(fd)
+            preferences.write(fd, _prefs)
             fd.close()
         finally:
             if not fd.closed:
