@@ -13,7 +13,7 @@ from mozprofile.prefs import Preferences
 from mozprofile.profile import Profile
 
 class PreferencesTest(unittest.TestCase):
-    """test mozprofile preferences"""
+    """test mozprofile preference handling"""
 
     def run_command(self, *args):
         """
@@ -206,6 +206,8 @@ user_pref("webgl.force-enabled", true);
             shutil.rmtree(tempdir)
 
     def test_json(self):
+        """ensure our JSON serialization/deserialization is sane"""
+
         _prefs = {"browser.startup.homepage": "http://planet.mozilla.org/"}
         json = '{"browser.startup.homepage": "http://planet.mozilla.org/"}'
 
@@ -217,6 +219,8 @@ user_pref("webgl.force-enabled", true);
         commandline = ["mozprofile", "--preferences", name]
         self.compare_generated(_prefs, commandline)
 
+    def test_prefs_write(self):
+        """test that the Preferences.write() method correctly serializes preferences"""
 
 if __name__ == '__main__':
     unittest.main()
