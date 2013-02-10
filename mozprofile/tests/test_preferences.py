@@ -222,5 +222,27 @@ user_pref("webgl.force-enabled", true);
     def test_prefs_write(self):
         """test that the Preferences.write() method correctly serializes preferences"""
 
+        _prefs = {'browser.startup.homepage': "http://planet.mozilla.org",
+                  'zoom.minPercent': 30,
+                  'zoom.maxPercent': 300}
+
+        # make a Preferences manager with the testing preferences
+        preferences = Preferences(_prefs)
+
+        # write them to a temporary location
+        fd = tempfile.NamedTemporaryFile(suffix='.js', delete=False)
+        path = fd.name
+        try:
+            preferences.write(fd)
+            fd.close()
+        finally:
+            if not fd.closed:
+                fd.close()
+            os.remove(path)
+
+        # read them back and ensure we get what we put in
+        result = Preferences.read(path)
+        print result
+
 if __name__ == '__main__':
     unittest.main()
