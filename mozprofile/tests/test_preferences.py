@@ -230,19 +230,19 @@ user_pref("webgl.force-enabled", true);
         preferences = Preferences(_prefs)
 
         # write them to a temporary location
-        fd = tempfile.NamedTemporaryFile(suffix='.js', delete=False)
-        path = fd.name
+        path = None
         try:
-            preferences.write(fd, _prefs)
-            fd.close()
+            with tempfile.NamedTemporaryFile(suffix='.js', delete=False) as fd:
+                path = fd.name
+                preferences.write(fd, _prefs)
+
+            # read them back and ensure we get what we put in
+            self.assertEqual(dict(Preferences.read_prefs(path)), _prefs)
+
         finally:
-            if not fd.closed:
-                fd.close()
+            # cleanup
             os.remove(path)
 
-        # read them back and ensure we get what we put in
-        result = Preferences.read(path)
-        print result
 
 if __name__ == '__main__':
     unittest.main()
