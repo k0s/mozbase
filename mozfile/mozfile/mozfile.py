@@ -220,5 +220,5 @@ def open(resource):
         resource = 'file://' + resource
 
     if resource.startswith('file://'):
-        return open(resource)
+        return file(resource)
     return urllib2.urlopen(resource)
