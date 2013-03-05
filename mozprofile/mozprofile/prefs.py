@@ -217,11 +217,11 @@ class Preferences(object):
 
         # serialize -> JSON
         _prefs = [(json.dumps(k), json.dumps(v) )
-                  for k, v in preferences]
+                  for k, v in prefs]
 
         # write the preferences
         for _pref in _prefs:
-            f.write(pref_string % _pref)
+            print >> f, pref_string % _pref
 
         # close the file if opened internally
         if isinstance(_file, basestring):

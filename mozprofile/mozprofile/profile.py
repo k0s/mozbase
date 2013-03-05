@@ -135,9 +135,8 @@ class Profile(object):
         return c
 
     def create_new_profile(self):
-        """Create a new clean profile in tmp which is a simple empty folder"""
-        profile = tempfile.mkdtemp(suffix='.mozrunner')
-        return profile
+        """Create a new clean temporary profile which is a simple empty folder"""
+        return tempfile.mkdtemp(suffix='.mozrunner')
 
 
     ### methods for preferences
