@@ -203,7 +203,7 @@ class Preferences(object):
         return retval
 
     @classmethod
-    def write(cls, _file, prefs, pref_string='user_pref("%s", %s);'):
+    def write(cls, _file, prefs, pref_string='user_pref(%s, %s);'):
         """write preferences to a file"""
 
         if isinstance(_file, basestring):
