@@ -22,8 +22,8 @@ def make_proclaunch(aDir):
         Returns:
             the path to the proclaunch executable that is generated
     """
-    # Ideally make should take care of this, but since it doesn't - on windows,
-    # anyway, let's just call out both targets explicitly.
+    # Ideally make should take care of this, but since it doesn't,
+    # on windows anyway, let's just call out both targets explicitly.
     p = subprocess.call(["make", "-C", "iniparser"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=aDir)
     p = subprocess.call(["make"],stdout=subprocess.PIPE, stderr=subprocess.PIPE ,cwd=aDir)
     if sys.platform == "win32":
@@ -40,6 +40,10 @@ def check_for_process(processName):
         detected -- True if process is detected to exist, False otherwise
         output -- if process exists, stdout of the process, '' otherwise
     """
+    # TODO: replace with
+    # https://github.com/mozilla/mozbase/blob/master/mozprocess/mozprocess/pid.py
+    # which should be augmented from talos
+    # see https://bugzilla.mozilla.org/show_bug.cgi?id=705864
     output = ''
     if sys.platform == "win32":
         # On windows we use tasklist
@@ -59,14 +63,14 @@ def check_for_process(processName):
         for line in output.splitlines():
             if "grep %s" % processName in line:
                 continue
-            elif processName in line and not 'defunct' in line: 
+            elif processName in line and not 'defunct' in line:
                 detected = True
                 break
 
     return detected, output
 
 
-class ProcTest1(unittest.TestCase):
+class ProcTest(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
 
@@ -89,7 +93,23 @@ class ProcTest1(unittest.TestCase):
                               p.proc.returncode,
                               p.didTimeout)
 
-    def test_process_waittimeout(self):
+    def test_process_wait(self):
+        """ Process is started runs to completion while we wait indefinitely
+        """
+
+        p = processhandler.ProcessHandler([self.proclaunch,
+                                          "process_waittimeout_10s.ini"],
+                                          cwd=here)
+        p.run()
+        p.wait()
+
+        detected, output = check_for_process(self.proclaunch)
+        self.determine_status(detected,
+                              output,
+                              p.proc.returncode,
+                              p.didTimeout)
+
+    def test_process_timeout(self):
         """ Process is started, runs but we time out waiting on it
             to complete
         """
@@ -106,6 +126,41 @@ class ProcTest1(unittest.TestCase):
                               False,
                               ['returncode', 'didtimeout'])
 
+    def test_process_waittimeout(self):
+        """
+        Process is started, then wait is called and times out.
+        Process is still running and didn't timeout
+        """
+        p = processhandler.ProcessHandler([self.proclaunch,
+                                          "process_waittimeout_10s.ini"],
+                                          cwd=here)
+
+        p.run()
+        p.wait(timeout=5)
+
+        detected, output = check_for_process(self.proclaunch)
+        self.determine_status(detected,
+                              output,
+                              p.proc.returncode,
+                              p.didTimeout,
+                              True,
+                              ())
+
+    def test_process_waitnotimeout(self):
+        """ Process is started, runs to completion before our wait times out
+        """
+        p = processhandler.ProcessHandler([self.proclaunch,
+                                          "process_waittimeout_10s.ini"],
+                                          cwd=here)
+        p.run(timeout=30)
+        p.wait()
+
+        detected, output = check_for_process(self.proclaunch)
+        self.determine_status(detected,
+                              output,
+                              p.proc.returncode,
+                              p.didTimeout)
+
     def test_process_kill(self):
         """ Process is started, we kill it
         """
@@ -120,13 +175,33 @@ class ProcTest1(unittest.TestCase):
                               p.proc.returncode,
                               p.didTimeout)
 
+    def test_process_output_twice(self):
+        """
+        Process is started, then processOutput is called a second time explicitly
+        """
+        p = processhandler.ProcessHandler([self.proclaunch,
+                                          "process_waittimeout_10s.ini"],
+                                          cwd=here)
+
+        p.run()
+        p.processOutput(timeout=5)
+        p.wait()
+
+        detected, output = check_for_process(self.proclaunch)
+        self.determine_status(detected,
+                              output,
+                              p.proc.returncode,
+                              p.didTimeout,
+                              False,
+                              ())
+
     def determine_status(self,
                          detected=False,
                          output='',
                          returncode=0,
                          didtimeout=False,
                          isalive=False,
-                         expectedfail=[]):
+                         expectedfail=()):
         """
         Use to determine if the situation has failed.
         Parameters:
