@@ -96,6 +96,7 @@ class ProcTest(unittest.TestCase):
                     errors.append(str(e))
         if errors:
             raise OSError("Error(s) encountered tearing down %s.%s:\n%s" % (cls.__module__, cls.__name__, '\n'.join(errors)))
+        del cls.proclaunch
 
     def test_process_normal_finish(self):
         """Process is started, runs to completion while we wait for it"""
