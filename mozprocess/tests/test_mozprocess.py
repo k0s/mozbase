@@ -73,7 +73,7 @@ def check_for_process(processName):
 class ProcTest(unittest.TestCase):
 
     @classmethod
-    def setupClass(cls):
+    def setUpClass(cls):
         cls.proclaunch = make_proclaunch(here)
 
     @classmethod
@@ -87,6 +87,15 @@ class ProcTest(unittest.TestCase):
                  ('iniparser', 'libiniparser.so.0'),
                  ]
         files = [os.path.join(here, *path) for path in files]
+        errors = []
+        for path in files:
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                except OSError as e:
+                    errors.append(str(e))
+        if errors:
+            raise OSError("Error(s) encountered tearing down %s.%s:\n%s" % (cls.__module__, cls.__name__, '\n'.join(errors)))
 
     def test_process_normal_finish(self):
         """Process is started, runs to completion while we wait for it"""
