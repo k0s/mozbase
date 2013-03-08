@@ -72,12 +72,21 @@ def check_for_process(processName):
 
 class ProcTest(unittest.TestCase):
 
-    def __init__(self, *args, **kwargs):
+    @classmethod
+    def setupClass(cls):
+        cls.proclaunch = make_proclaunch(here)
 
-        # Ideally, I'd use setUpClass but that only exists in 2.7.
-        # So, we'll do this make step now.
-        self.proclaunch = make_proclaunch(here)
-        unittest.TestCase.__init__(self, *args, **kwargs)
+    @classmethod
+    def tearDownClass(cls):
+        files = [('proclaunch',),
+                 ('proclaunch.exe',),
+                 ('iniparser', 'dictionary.o'),
+                 ('iniparser', 'iniparser.lib'),
+                 ('iniparser', 'iniparser.o'),
+                 ('iniparser', 'libiniparser.a'),
+                 ('iniparser', 'libiniparser.so.0'),
+                 ]
+        files = [os.path.join(here, *path) for path in files]
 
     def test_process_normal_finish(self):
         """Process is started, runs to completion while we wait for it"""
@@ -94,8 +103,7 @@ class ProcTest(unittest.TestCase):
                               p.didTimeout)
 
     def test_process_wait(self):
-        """ Process is started runs to completion while we wait indefinitely
-        """
+        """Process is started runs to completion while we wait indefinitely"""
 
         p = processhandler.ProcessHandler([self.proclaunch,
                                           "process_waittimeout_10s.ini"],
@@ -162,8 +170,8 @@ class ProcTest(unittest.TestCase):
                               p.didTimeout)
 
     def test_process_kill(self):
-        """ Process is started, we kill it
-        """
+        """Process is started, we kill it"""
+
         p = processhandler.ProcessHandler([self.proclaunch, "process_normal_finish.ini"],
                                           cwd=here)
         p.run()
