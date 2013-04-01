@@ -11,6 +11,7 @@ by default https://github.com/mozilla/mozbase/blob/master/test-manifest.ini
 
 import imp
 import manifestparser
+import mozinfo
 import os
 import sys
 import unittest
