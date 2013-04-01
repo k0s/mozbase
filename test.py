@@ -48,7 +48,7 @@ def main(args=sys.argv[1:]):
         # ensure manifests exist
         if not os.path.exists(manifest):
             missing.append(manifest)
-    assert not missing, 'manifest%s not found: %s' % ((len(manifests) == 1 and '' or 's'), ', '.join(missing))
+    assert not missing, 'manifest(s) not found: %s' % ', '.join(missing)
     manifest = manifestparser.TestManifest(manifests=manifests)
 
     # gather the tests
