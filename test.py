@@ -54,9 +54,12 @@ def main(args=sys.argv[1:]):
 
     # gather the tests
     tests = manifest.active_tests()
+    tests = [test['path'] for test in tests]
+
+    # create unittests
     unittestlist = []
     for test in tests:
-        unittestlist.extend(unittests(test['path']))
+        unittestlist.extend(unittests(test))
 
     # run the tests
     suite = unittest.TestSuite(unittestlist)
