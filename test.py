@@ -12,6 +12,7 @@ by default https://github.com/mozilla/mozbase/blob/master/test-manifest.ini
 import imp
 import manifestparser
 import mozinfo
+import optparse
 import os
 import sys
 import unittest
@@ -39,6 +40,14 @@ def unittests(path):
 
 def main(args=sys.argv[1:]):
 
+    # parse command line options
+    usage = '%prog [options] manifest.ini <manifest.ini> <...>'
+    parser = optparse.OptionParser(usage=usage, description=__doc__)
+    parser.add_option('--list', dest='list_tests',
+                      action='store_true', default=False,
+                      help="list paths of tests to be run")
+    options, args = parser.parse_args(args)
+
     # read the manifest
     if args:
         manifests = args
@@ -55,6 +64,10 @@ def main(args=sys.argv[1:]):
     # gather the tests
     tests = manifest.active_tests()
     tests = [test['path'] for test in tests]
+    if options.list_tests:
+        # print test paths
+        print '\n'.join(tests)
+        sys.exit(0)
 
     # create unittests
     unittestlist = []
