@@ -62,7 +62,7 @@ def main(args=sys.argv[1:]):
     manifest = manifestparser.TestManifest(manifests=manifests)
 
     # gather the tests
-    tests = manifest.active_tests(**mozinfo.info)
+    tests = manifest.active_tests(disabled=False, **mozinfo.info)
     tests = [test['path'] for test in tests]
     if options.list_tests:
         # print test paths
