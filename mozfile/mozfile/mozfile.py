@@ -13,7 +13,7 @@ __all__ = ['extract_tarball',
            'extract_zip',
            'extract',
            'is_url',
-           'open',
+           'load',
            'rmtree',
            'NamedTemporaryFile']
 
