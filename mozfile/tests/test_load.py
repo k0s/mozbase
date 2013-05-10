@@ -4,6 +4,7 @@
 tests for mozfile.load
 """
 
+import mozhttpd
 import os
 import tempfile
 import unittest
@@ -12,7 +13,14 @@ from mozfile import load
 class TestLoad(unittest.TestCase):
     """test the load function"""
 
-    # TODO: test with mozhttpd and a http:// URL
+    def test_http(self):
+    """test with mozhttpd and a http:// URL"""
+    httpd = mozhttpd.MozHttpd(port=8888,
+                              urlhandlers=[{'method': 'GET',
+                                            'path': '.*',
+                                            '': lambda x: x}])
+    httpd.start(block=False)
+
 
     def test_file_path(self):
         """test loading from file path"""
