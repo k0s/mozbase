@@ -10,7 +10,8 @@ PACKAGE_VERSION = '0.7'
 # we only support python 2 right now
 assert sys.version_info[0] == 2
 
-deps = ["ManifestDestiny >= 0.5.4"]
+deps = ["ManifestDestiny >= 0.5.4",
+        "mozfile"]
 # version-dependent dependencies
 try:
     import json
