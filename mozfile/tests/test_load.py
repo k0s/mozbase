@@ -14,12 +14,27 @@ class TestLoad(unittest.TestCase):
     """test the load function"""
 
     def test_http(self):
-    """test with mozhttpd and a http:// URL"""
-    httpd = mozhttpd.MozHttpd(port=8888,
-                              urlhandlers=[{'method': 'GET',
-                                            'path': '.*',
-                                            '': lambda x: x}])
-    httpd.start(block=False)
+        """test with mozhttpd and a http:// URL"""
+
+        def example(request):
+            """example request handler"""
+            body = 'example'
+            return (200, {'Content-type': 'text/plain',
+                          'Content-length': len(body)
+                          }, body)
+
+        host = '127.0.0.1'
+        httpd = mozhttpd.MozHttpd(host=host,
+                                  port=8888,
+                                  urlhandlers=[{'method': 'GET',
+                                                'path': '.*',
+                                                'function': example}])
+        try:
+            httpd.start(block=False)
+            content = load('http://127.0.0.1:8888/foo').read()
+            self.assertEqual(content, 'example')
+        finally:
+            httpd.stop()
 
 
     def test_file_path(self):
