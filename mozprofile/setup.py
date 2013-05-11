@@ -38,12 +38,13 @@ setup(name='mozprofile',
       keywords='mozilla',
       author='Mozilla Automation and Tools team',
       author_email='tools@lists.mozilla.org',
-      url='https://wiki.mozilla.org/Auto-tools/Projects/MozBase',
+      url='https://wiki.mozilla.org/Auto-tools/Projects/Mozbase',
       license='MPL 2.0',
       packages=['mozprofile'],
       include_package_data=True,
       zip_safe=False,
       install_requires=deps,
+      tests_require=['mozhttpd'],
       entry_points="""
       # -*- Entry points: -*-
       [console_scripts]
