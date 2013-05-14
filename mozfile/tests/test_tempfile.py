@@ -12,7 +12,21 @@ import mozfile
 import unittest
 
 class TestNamedTemporaryFile(unittest.TestCase):
-    pass
+
+    def test_iteration(self):
+        """ensure the line iterator works"""
+
+
+    def test_delete(self):
+        """ensure ``delete=True/False`` works as expected"""
+
+        # make a deleteable file; ensure it gets cleaned up
+        path = None
+        with mozfile.NamedTemporaryFile(delete=True) as tf:
+            path = tf.name
+        self.assertTrue(isinstance(path, basestring))
+
+        
 
 if __name__ == '__main__':
     unittest.main()

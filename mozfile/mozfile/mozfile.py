@@ -176,6 +176,7 @@ class NamedTemporaryFile(object):
 
         self.file = open(path, mode)
         self._path = path
+        self._delete = delete
         self._unlinked = False
 
     def __getattr__(self, k):
@@ -187,15 +188,17 @@ class NamedTemporaryFile(object):
 
     def __exit__(self, exc, value, tb):
         self.file.__exit__(exc, value, tb)
-        os.unlink(self.__dict__['_path'])
-        self._unlinked = True
+        if self.__dict__['_delete']:
+            os.unlink(self.__dict__['_path'])
+            self._unlinked = True
 
     def __del__(self):
         if self.__dict__['_unlinked']:
             return
-
         self.file.__exit__(None, None, None)
-        os.unlink(self.__dict__['_path'])
+        if self.__dict__['_delete']:
+            os.unlink(self.__dict__['name'])
+
 
 ### utilities dealing with URLs
 
