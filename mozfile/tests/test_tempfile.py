@@ -9,6 +9,7 @@ tests for mozfile.NamedTemporaryFile
 """
 
 import mozfile
+import os
 import unittest
 
 class TestNamedTemporaryFile(unittest.TestCase):
@@ -25,8 +26,36 @@ class TestNamedTemporaryFile(unittest.TestCase):
         with mozfile.NamedTemporaryFile(delete=True) as tf:
             path = tf.name
         self.assertTrue(isinstance(path, basestring))
+        self.assertFalse(os.path.exists(path))
 
-        
+        # it is also deleted when __del__ is called
+        # here we will do so explicitly
+        tf = mozfile.NamedTemporaryFile(delete=True)
+        path = tf.name
+        self.assertTrue(os.path.exists(path))
+        del tf
+        self.assertFalse(os.path.exists(path))
+
+        # Now the same thing but we won't delete the file
+        path = None
+        try:
+            with mozfile.NamedTemporaryFile(delete=False) as tf:
+                path = tf.name
+            self.assertTrue(os.path.exists(path))
+        finally:
+            if path and os.path.exists(path):
+                os.remove(path)
+
+        path = None
+        try:
+            tf = mozfile.NamedTemporaryFile(delete=False)
+            path = tf.name
+            self.assertTrue(os.path.exists(path))
+            del tf
+            self.assertTrue(os.path.exists(path))
+        finally:
+            if path and os.path.exists(path):
+                os.remove(path)
 
 if __name__ == '__main__':
     unittest.main()

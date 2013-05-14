@@ -197,7 +197,7 @@ class NamedTemporaryFile(object):
             return
         self.file.__exit__(None, None, None)
         if self.__dict__['_delete']:
-            os.unlink(self.__dict__['name'])
+            os.unlink(self.__dict__['_path'])
 
 
 ### utilities dealing with URLs
