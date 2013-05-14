@@ -182,6 +182,9 @@ class NamedTemporaryFile(object):
     def __getattr__(self, k):
         return getattr(self.__dict__['file'], k)
 
+    def __iter__(self):
+        return self.__dict__['file']
+
     def __enter__(self):
         self.file.__enter__()
         return self

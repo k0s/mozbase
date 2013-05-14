@@ -25,8 +25,13 @@ class TestNamedTemporaryFile(unittest.TestCase):
         tf.flush()
 
         # now read from it
+        tf.seek(0)
         lines = [line.rstrip('\n') for line in tf.readlines()]
         self.assertEqual(lines, notes)
+
+        # now read from it iteratively
+        for line in tf:
+            pass
 
     def test_delete(self):
         """ensure ``delete=True/False`` works as expected"""
