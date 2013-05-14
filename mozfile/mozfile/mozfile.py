@@ -169,7 +169,7 @@ class NamedTemporaryFile(object):
     see https://bugzilla.mozilla.org/show_bug.cgi?id=821362
     """
     def __init__(self, mode='w+b', bufsize=-1, suffix='', prefix='tmp',
-        dir=None):
+                 dir=None, delete=True):
 
         fd, path = tempfile.mkstemp(suffix, prefix, dir, 't' in mode)
         os.close(fd)
