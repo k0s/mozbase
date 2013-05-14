@@ -17,6 +17,16 @@ class TestNamedTemporaryFile(unittest.TestCase):
     def test_iteration(self):
         """ensure the line iterator works"""
 
+        # make a file and write to it
+        tf = mozfile.NamedTemporaryFile()
+        notes = ['doe', 'rae', 'mi']
+        for note in notes:
+            tf.write('%s\n' % note)
+        tf.flush()
+
+        # now read from it
+        lines = [line.rstrip('\n') for line in tf.readlines()]
+        self.assertEqual(lines, notes)
 
     def test_delete(self):
         """ensure ``delete=True/False`` works as expected"""
