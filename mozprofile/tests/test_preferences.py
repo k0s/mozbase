@@ -253,7 +253,7 @@ user_pref("webgl.force-enabled", true);
             if path and os.path.exists(path):
                 os.remove(path)
 
-        self.asseertEqual(read_prefs, _prefs)
+        self.assertEqual(read_prefs, _prefs)
 
     def test_read_prefs_with_comments(self):
         """test reading preferences from a prefs.js file that contains comments"""
