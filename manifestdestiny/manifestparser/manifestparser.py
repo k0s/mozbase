@@ -499,13 +499,6 @@ class ManifestParser(object):
         # return the tests
         return tests
 
-    def missing(self, tests=None):
-        """return list of tests that do not exist on the filesystem"""
-        if tests is None:
-            tests = self.tests
-        return [test for test in tests
-                if not os.path.exists(test['path'])]
-
     def manifests(self, tests=None):
         """
         return manifests in order in which they appear in the tests
@@ -521,7 +514,25 @@ class ManifestParser(object):
                 manifests.append(manifest)
         return manifests
 
-    ### methods for outputting from manifests
+    ### methods for auditing
+
+    def missing(self, tests=None):
+        """return list of tests that do not exist on the filesystem"""
+        if tests is None:
+            tests = self.tests
+        return [test for test in tests
+                if not os.path.exists(test['path'])]
+
+    def verifyDirectory(self, directories, pattern=None):
+
+        files = set([])
+        if isinstance(directories, basestring):
+            directories = [directories]
+
+        for dirpath, dirnames, filenames in os.walk(directory, topdown=True):
+            files.append([])
+
+    ### methods for output
 
     def write(self, fp=sys.stdout, rootdir=None,
               global_tags=None, global_kwargs=None,
