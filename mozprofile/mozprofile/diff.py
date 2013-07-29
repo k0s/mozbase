@@ -15,11 +15,10 @@ import sys
 def diff(profile1, profile2):
 
     profiles = (profile1, profile2)
-    profile = {}
     parts = {}
     parts_dict = {}
     for index in (0, 1):
-        profile[index] = mozprofile.Profile(profile[0])
+        profile = profiles[index]
         parts[index] = profile.print_profile(return_parts=True)
         parts_dict[index] = dict(parts[index])
 
@@ -43,7 +42,8 @@ def diff_profiles(args=sys.argv[1:]):
     if missing:
         parser.error("Profile not found: %s" % (', '.join(missing)))
 
-    diffs = diff(*args)
+    diffs = diff(*([mozprofile.Profile(arg)
+                    for arg in args]))
 
 if __name__ == '__main__':
     diff_profiles()

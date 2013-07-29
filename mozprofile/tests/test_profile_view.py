@@ -48,7 +48,10 @@ class TestProfilePrint(unittest.TestCase):
         self.assertEqual(str(profile), profile.print_profile())
 
     def test_profile_diff(self):
-        profile1 = 
-        
+        profile1 = mozprofile.Profile()
+        profile2 = mozprofile.Profile(preferences=dict(foo='bar'))
+
+        # diff a profile against itself; no difference
+
 if __name__ == '__main__':
     unittest.main()
