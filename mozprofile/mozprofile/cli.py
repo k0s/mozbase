@@ -90,8 +90,18 @@ def cli(args=sys.argv[1:]):
     # process the command line
     cli = MozProfileCLI(args)
 
+    # add a view method for this cli method only
+    cli.parser.add_option('--view', dest='view',
+                          action='store_true', default=False,
+                          help="view summary of profile following invocation")
+
     # create the profile
     profile = cli.profile()
+
+    if cli.options.view:
+        # view the profile, if specified
+        print profile.print_profile()
+        return
 
     # if no profile was passed in print the newly created profile
     if not cli.options.profile:

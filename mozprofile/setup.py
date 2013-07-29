@@ -49,5 +49,6 @@ setup(name='mozprofile',
       # -*- Entry points: -*-
       [console_scripts]
       mozprofile = mozprofile:cli
+      view-profile = mozprofile:view_profile
       """,
     )

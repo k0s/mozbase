@@ -12,7 +12,9 @@ import time
 import tempfile
 import types
 import uuid
+
 from addons import AddonManager
+from mozfile import tree
 from permissions import Permissions
 from prefs import Preferences
 from shutil import copytree, rmtree
