@@ -527,6 +527,11 @@ class ManifestParser(object):
                 if not os.path.exists(test['path'])]
 
     def verifyDirectory(self, directories, pattern=None, extensions=None):
+        """
+        checks what is on the filesystem vs what is in a manifest
+        returns a 2-tuple of sets:
+        (missing_from_filesystem, missing_from_manifest)
+        """
 
         files = set([])
         if isinstance(directories, basestring):
@@ -548,7 +553,10 @@ class ManifestParser(object):
 
                 files.update([os.path.join(dirpath, filename) for filename in filenames])
 
-        return files == set(self.paths())
+        paths = set(self.paths())
+        missing_from_filesystem = paths.difference(files)
+        missing_from_manifest = files.differnce(paths)
+        return (missing_from_filesystem, missing_from_manifest)
 
     ### methods for output
 
