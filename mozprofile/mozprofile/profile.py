@@ -255,6 +255,54 @@ class Profile(object):
 
     __del__ = cleanup
 
+    ### methods for introspection
+
+    def print_profile(self):
+        """
+        returns string summarizing profile information
+        """
+        from .utils import tree
+        parts = [('Path', self.profile)] # profile path
+
+        # directory tree
+        parts.append(('Files', '\n%s' % tree(self.profile)))
+
+        # preferences
+        for prefs_file in ('user.js', 'prefs.js'):
+            path = os.path.join(self.profile, prefs_file)
+            if os.path.exists(path):
+                prefs = Preferences.read_prefs(path)
+                if prefs:
+                    prefs = dict(prefs)
+                    parts.append(('Preferences, %s' % (prefs_file),
+                    '\n%s' %('\n'.join(['%s: %s' % (key, ('%s...' % prefs[key][:75]) if key == 'network.proxy.autoconfig_url' else prefs[key])
+                                        for key in sorted(prefs.keys())
+                                        ]))))
+                    network_proxy_autoconfig = prefs.get('network.proxy.autoconfig_url')
+                    if network_proxy_autoconfig and network_proxy_autoconfig.strip():
+                        network_proxy_autoconfig = network_proxy_autoconfig.strip()
+                        lines = network_proxy_autoconfig.replace(';', ';\n').splitlines()
+                        lines = [line.strip() for line in lines]
+                        origins_string = 'var origins = ['
+                        origins_end = '];'
+                        if origins_string in lines[0]:
+                            start = lines[0].find(origins_string)
+                            end = lines[0].find(origins_end, start);
+                            splitline = [lines[0][:start],
+                                         lines[0][start:start+len(origins_string)-1],
+                                         ]
+                            splitline.extend(lines[0][start+len(origins_string):end].replace(',', ',\n').splitlines())
+                            splitline.append(lines[0][end:])
+                            lines[0:1] = [i.strip() for i in splitline]
+                        parts.append(('Network Proxy Autoconfig, %s' % (prefs_file),
+                                      '\n%s' % '\n'.join(lines)))
+        retval = '%s\n' % ('\n\n'.join(['[[%s]]: %s' % (key, value)
+                                        for key, value in parts]))
+        return retval
+
+    __str__ = print_profile
+
+
 class FirefoxProfile(Profile):
     """Specialized Profile subclass for Firefox"""
 

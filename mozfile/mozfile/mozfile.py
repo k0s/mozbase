@@ -107,6 +107,8 @@ def extract(src, dest=None):
     return top_level_files
 
 
+### utilities for directory trees
+
 def rmtree(dir):
     """Removes the specified directory tree
 
@@ -155,6 +157,8 @@ def rmtree(dir):
             os.remove(full_name)
     os.rmdir(dir)
 
+
+### utilities for temporary resources
 
 class NamedTemporaryFile(object):
     """
@@ -209,6 +213,23 @@ class NamedTemporaryFile(object):
             os.unlink(self.__dict__['_path'])
 
 
+@contextmanager
+def TemporaryDirectory():
+    """
+    create a temporary directory using tempfile.mkdtemp, and then clean it up.
+
+    Example usage:
+    with TemporaryDirectory() as tmp:
+       open(os.path.join(tmp, "a_temp_file"), "w").write("data")
+
+    """
+    tempdir = tempfile.mkdtemp()
+    try:
+        yield tempdir
+    finally:
+        shutil.rmtree(tempdir)
+
+
 ### utilities dealing with URLs
 
 def is_url(thing):
@@ -239,18 +260,3 @@ def load(resource):
 
     return urllib2.urlopen(resource)
 
-@contextmanager
-def TemporaryDirectory():
-    """
-    create a temporary directory using tempfile.mkdtemp, and then clean it up.
-
-    Example usage:
-    with TemporaryDirectory() as tmp:
-       open(os.path.join(tmp, "a_temp_file"), "w").write("data")
-
-    """
-    tempdir = tempfile.mkdtemp()
-    try:
-        yield tempdir
-    finally:
-        shutil.rmtree(tempdir)
