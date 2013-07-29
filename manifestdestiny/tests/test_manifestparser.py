@@ -227,7 +227,12 @@ class TestManifestparser(unittest.TestCase):
         self.assertFalse('test_0202_app_launch_apply_update_dirlocked.js' in names)
 
     def test_verifyDirectory(self):
-        
-        
+
+        directory = os.path.join(here, 'verifyDirectory')
+        manifest_path = os.path.join(directory, 'verifyDirectory.ini')
+        manifest = ManifestParser(manifests=(manifest_path,))
+
+        self.assertEqual(manifest.verifyDirectory(directory), True)
+
 if __name__ == '__main__':
     unittest.main()

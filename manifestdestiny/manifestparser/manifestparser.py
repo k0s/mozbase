@@ -529,6 +529,7 @@ class ManifestParser(object):
         if isinstance(directories, basestring):
             directories = [directories]
 
+        # get files in directories
         for directory in directories:
             for dirpath, dirnames, filenames in os.walk(directory, topdown=True):
 
@@ -543,6 +544,9 @@ class ManifestParser(object):
                                  if os.path.splitext(filename)[-1] in extensions]
 
                 files.update([os.path.join(dirpath, filename) for filename in filenames])
+
+        #
+        import pdb; pdb.set_trace()
 
     ### methods for output
 
