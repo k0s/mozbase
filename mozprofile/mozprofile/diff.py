@@ -35,7 +35,7 @@ def diff(profile1, profile2, diff_function=difflib.unified_diff):
     for key, value in parts[0]:
         other = parts_dict[1].get(key, '')
         value = value.strip(); other = other.strip()
-        
+
         if key == 'Files':
             # first line of files is the path; we don't care to diff that
             value = '\n'.join(value.splitlines()[1:])
@@ -52,6 +52,7 @@ def diff(profile1, profile2, diff_function=difflib.unified_diff):
 
 def diff_profiles(args=sys.argv[1:]):
 
+    # parse command line
     usage = '%prog [options] profile1 profile2'
     parser = optparse.OptionParser(usage=usage, description=__doc__)
     options, args = parser.parse_args(args)
@@ -61,8 +62,17 @@ def diff_profiles(args=sys.argv[1:]):
     if missing:
         parser.error("Profile not found: %s" % (', '.join(missing)))
 
+    # get the profile differences
     diffs = diff(*([mozprofile.Profile(arg)
                     for arg in args]))
+
+    # display them
+    while diffs:
+        key, value = diffs.pop(0)
+        print '[%s]:\n' % key
+        print value
+        if diffs:
+            print '-' * 4
 
 if __name__ == '__main__':
     diff_profiles()
