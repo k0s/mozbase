@@ -14,6 +14,7 @@ import sys
 from addons import AddonManager
 from optparse import OptionParser
 from prefs import Preferences
+from profile import FirefoxProfile
 from profile import Profile
 
 __all__ = ['MozProfileCLI', 'cli']
@@ -22,6 +23,7 @@ class MozProfileCLI(object):
     """The Command Line Interface for ``mozprofile``."""
 
     module = 'mozprofile'
+    profile_class = Profile
 
     def __init__(self, args=sys.argv[1:], add_options=None):
         self.parser = OptionParser(description=__doc__)
@@ -83,7 +85,7 @@ class MozProfileCLI(object):
 
         kwargs = self.profile_args()
         kwargs['restore'] = restore
-        return Profile(**kwargs)
+        return self.profile_class(**kwargs)
 
 
 def cli(args=sys.argv[1:]):
@@ -94,9 +96,15 @@ def cli(args=sys.argv[1:]):
         parser.add_option('--view', dest='view',
                           action='store_true', default=False,
                           help="view summary of profile following invocation")
+        parser.add_option('--firefox', dest='firefox_profile',
+                          action='store_true', default=False,
+                          help="use FirefoxProfile defaults")
 
     # process the command line
     cli = MozProfileCLI(args, add_options)
+
+    if options.firefox_profile:
+        cli.profile_class = FirefoxProfile
 
     # create the profile
     profile = cli.profile()
