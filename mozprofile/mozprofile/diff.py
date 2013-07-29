@@ -10,7 +10,7 @@ import optparse
 import os
 import sys
 
-
+__all__ = ['diff', 'diff_profiles']
 
 def diff(profile1, profile2):
 
@@ -19,7 +19,10 @@ def diff(profile1, profile2):
     parts_dict = {}
     for index in (0, 1):
         profile = profiles[index]
-        parts[index] = profile.print_profile(return_parts=True)
+
+        # first part, the path, isn't useful for diffing
+        parts[index] = profile.print_profile(return_parts=True)[1:]
+
         parts_dict[index] = dict(parts[index])
 
     # keys the first profile is missing

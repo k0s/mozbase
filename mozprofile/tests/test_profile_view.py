@@ -51,7 +51,11 @@ class TestProfilePrint(unittest.TestCase):
         profile1 = mozprofile.Profile()
         profile2 = mozprofile.Profile(preferences=dict(foo='bar'))
 
+        # diff the two profiles
+        diff = mozprofile.diff(profile1, profile2)
+        
         # diff a profile against itself; no difference
+        
 
 if __name__ == '__main__':
     unittest.main()
