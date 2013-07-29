@@ -12,7 +12,7 @@ import sys
 
 __all__ = ['diff', 'diff_profiles']
 
-def diff(profile1, profile2):
+def diff(profile1, profile2, diff_function=difflib.unified_diff):
 
     profiles = (profile1, profile2)
     parts = {}
@@ -34,15 +34,21 @@ def diff(profile1, profile2):
     retval = []
     for key, value in parts[0]:
         other = parts_dict[1].get(key, '')
-
+        value = value.strip(); other = other.strip()
+        
         if key == 'Files':
             # first line of files is the path; we don't care to diff that
-            value = value.strip(); other = other.strip()
             value = '\n'.join(value.splitlines()[1:])
             if other:
                 other = '\n'.join(other.splitlines()[1:])
 
-        import pdb; pdb.set_trace()
+        value = value.splitlines()
+        other = other.splitlines()
+        section_diff = list(diff_function(value, other, profile1.profile, profile2.profile))
+        if section_diff:
+            retval.append((key, '\n'.join(section_diff)))
+
+    return retval
 
 def diff_profiles(args=sys.argv[1:]):
 

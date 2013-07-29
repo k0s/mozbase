@@ -19,7 +19,7 @@ class TestProfilePrint(unittest.TestCase):
         test the print_profile function
         """
 
-        keys = set(['Files', 'Path', 'Preferences, user.js'])
+        keys = set(['Files', 'Path', 'user.js'])
         ff_prefs = mozprofile.FirefoxProfile.preferences # shorthand
         pref_string = '\n'.join(['%s: %s' % (key, ff_prefs[key])
                                  for key in sorted(ff_prefs.keys())])
@@ -32,7 +32,7 @@ class TestProfilePrint(unittest.TestCase):
 
             self.assertEqual(parts['Path'], tempdir)
             self.assertEqual(set(parts.keys()), keys)
-            self.assertEqual(pref_string, parts['Preferences, user.js'].strip())
+            self.assertEqual(pref_string, parts['user.js'].strip())
 
         except:
             raise
@@ -51,11 +51,24 @@ class TestProfilePrint(unittest.TestCase):
         profile1 = mozprofile.Profile()
         profile2 = mozprofile.Profile(preferences=dict(foo='bar'))
 
-        # diff the two profiles
-        diff = mozprofile.diff(profile1, profile2)
-        
         # diff a profile against itself; no difference
-        
+        self.assertEqual([], mozprofile.diff(profile1, profile1))
+
+        # diff two profiles
+        diff = dict(mozprofile.diff(profile1, profile2))
+        self.assertEqual(diff.keys(), ['user.js'])
+        lines = [line.strip() for line in diff['user.js'].splitlines()]
+        self.assertTrue('+foo: bar' in lines)
+
+        # diff a blank vs FirefoxProfile
+        ff_profile = mozprofile.FirefoxProfile()
+        diff = dict(mozprofile.diff(profile2, ff_profile))
+        self.assertEqual(diff.keys(), ['user.js'])
+        lines = [line.strip() for line in diff['user.js'].splitlines()]
+        self.assertTrue('-foo: bar' in lines)
+        ff_pref_lines = ['+%s: %s' % (key, value)
+                         for key, value in mozprofile.FirefoxProfile.preferences.items()]
+        self.assertTrue(set(ff_pref_lines).issubset(lines))
 
 if __name__ == '__main__':
     unittest.main()

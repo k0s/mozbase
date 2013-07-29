@@ -278,7 +278,7 @@ class Profile(object):
                 prefs = Preferences.read_prefs(path)
                 if prefs:
                     prefs = dict(prefs)
-                    parts.append(('Preferences, %s' % (prefs_file),
+                    parts.append((prefs_file,
                     '\n%s' %('\n'.join(['%s: %s' % (key, ('%s...' % prefs[key][:75]) if key == 'network.proxy.autoconfig_url' else prefs[key])
                                         for key in sorted(prefs.keys())
                                         ]))))
