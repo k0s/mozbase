@@ -50,5 +50,6 @@ setup(name='mozprofile',
       [console_scripts]
       mozprofile = mozprofile:cli
       view-profile = mozprofile:view_profile
+      diff-profiles = mozprofile:diff_profiles
       """,
     )
