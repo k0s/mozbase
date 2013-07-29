@@ -555,7 +555,7 @@ class ManifestParser(object):
 
         paths = set(self.paths())
         missing_from_filesystem = paths.difference(files)
-        missing_from_manifest = files.differnce(paths)
+        missing_from_manifest = files.difference(paths)
         return (missing_from_filesystem, missing_from_manifest)
 
     ### methods for output
