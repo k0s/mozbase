@@ -23,9 +23,11 @@ class MozProfileCLI(object):
 
     module = 'mozprofile'
 
-    def __init__(self, args=sys.argv[1:]):
+    def __init__(self, args=sys.argv[1:], add_options=None):
         self.parser = OptionParser(description=__doc__)
         self.add_options(self.parser)
+        if add_options:
+            add_options(self.parser)
         (self.options, self.args) = self.parser.parse_args(args)
 
     def add_options(self, parser):
@@ -87,13 +89,14 @@ class MozProfileCLI(object):
 def cli(args=sys.argv[1:]):
     """ Handles the command line arguments for ``mozprofile`` via ``sys.argv``"""
 
-    # process the command line
-    cli = MozProfileCLI(args)
-
     # add a view method for this cli method only
-    cli.parser.add_option('--view', dest='view',
+    def add_options(parser):
+        parser.add_option('--view', dest='view',
                           action='store_true', default=False,
                           help="view summary of profile following invocation")
+
+    # process the command line
+    cli = MozProfileCLI(args, add_options)
 
     # create the profile
     profile = cli.profile()

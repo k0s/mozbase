@@ -263,7 +263,7 @@ class Profile(object):
         """
         returns string summarizing profile information
         """
-        from .utils import tree
+
         parts = [('Path', self.profile)] # profile path
 
         # directory tree
@@ -298,7 +298,7 @@ class Profile(object):
                             lines[0:1] = [i.strip() for i in splitline]
                         parts.append(('Network Proxy Autoconfig, %s' % (prefs_file),
                                       '\n%s' % '\n'.join(lines)))
-        retval = '%s\n' % ('\n\n'.join(['[[%s]]: %s' % (key, value)
+        retval = '%s\n' % ('\n\n'.join(['[%s]: %s' % (key, value)
                                         for key, value in parts]))
         return retval
 
