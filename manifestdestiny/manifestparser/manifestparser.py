@@ -523,14 +523,26 @@ class ManifestParser(object):
         return [test for test in tests
                 if not os.path.exists(test['path'])]
 
-    def verifyDirectory(self, directories, pattern=None):
+    def verifyDirectory(self, directories, pattern=None, extensions=None):
 
         files = set([])
         if isinstance(directories, basestring):
             directories = [directories]
 
-        for dirpath, dirnames, filenames in os.walk(directory, topdown=True):
-            files.append([])
+        for directory in directories:
+            for dirpath, dirnames, filenames in os.walk(directory, topdown=True):
+
+                # only add files that match a pattern
+                if pattern:
+                    filenames = [filename for filename in filenames
+                                 if fnmatch(filename, pattern)]
+
+                # only add files that have one of the extensions
+                if extensions:
+                    filenames = [filename for filename in filenames
+                                 if os.path.splitext(filename)[-1] in extensions]
+
+                files.update([os.path.join(dirpath, filename) for filename in filenames])
 
     ### methods for output
 
