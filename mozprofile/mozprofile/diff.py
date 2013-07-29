@@ -31,7 +31,17 @@ def diff(profile1, profile2):
     parts[0].extend([(i, '') for i in first_missing])
 
     # diffs
+    retval = []
     for key, value in parts[0]:
+        other = parts_dict[1].get(key, '')
+
+        if key == 'Files':
+            # first line of files is the path; we don't care to diff that
+            value = value.strip(); other = other.strip()
+            value = '\n'.join(value.splitlines()[1:])
+            if other:
+                other = '\n'.join(other.splitlines()[1:])
+
         import pdb; pdb.set_trace()
 
 def diff_profiles(args=sys.argv[1:]):
