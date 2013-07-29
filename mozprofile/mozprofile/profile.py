@@ -259,9 +259,11 @@ class Profile(object):
 
     ### methods for introspection
 
-    def print_profile(self):
+    def print_profile(self, return_parts=False):
         """
-        returns string summarizing profile information
+        returns string summarizing profile information.
+        if return_parts is true, return the (Part_name, value) list
+        of tuples instead of the assembled string
         """
 
         parts = [('Path', self.profile)] # profile path
@@ -298,6 +300,10 @@ class Profile(object):
                             lines[0:1] = [i.strip() for i in splitline]
                         parts.append(('Network Proxy Autoconfig, %s' % (prefs_file),
                                       '\n%s' % '\n'.join(lines)))
+
+        if return_parts:
+            return parts
+
         retval = '%s\n' % ('\n\n'.join(['[%s]: %s' % (key, value)
                                         for key, value in parts]))
         return retval

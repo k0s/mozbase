@@ -103,7 +103,7 @@ def cli(args=sys.argv[1:]):
     # process the command line
     cli = MozProfileCLI(args, add_options)
 
-    if options.firefox_profile:
+    if cli.options.firefox_profile:
         cli.profile_class = FirefoxProfile
 
     # create the profile
