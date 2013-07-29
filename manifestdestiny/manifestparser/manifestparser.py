@@ -514,6 +514,9 @@ class ManifestParser(object):
                 manifests.append(manifest)
         return manifests
 
+    def paths(self):
+        return [i['path'] for i in self.tests]
+
     ### methods for auditing
 
     def missing(self, tests=None):
