@@ -226,5 +226,8 @@ class TestManifestparser(unittest.TestCase):
         names = [i['name'] for i in manifest.tests]
         self.assertFalse('test_0202_app_launch_apply_update_dirlocked.js' in names)
 
+    def test_verifyDirectory(self):
+        
+        
 if __name__ == '__main__':
     unittest.main()
