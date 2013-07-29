@@ -232,7 +232,8 @@ class TestManifestparser(unittest.TestCase):
         manifest_path = os.path.join(directory, 'verifyDirectory.ini')
         manifest = ManifestParser(manifests=(manifest_path,))
 
-        self.assertEqual(manifest.verifyDirectory(directory), True)
+        self.assertEqual(manifest.verifyDirectory(directory, extensions=('.js')),
+                         True)
 
 if __name__ == '__main__':
     unittest.main()

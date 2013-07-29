@@ -548,8 +548,7 @@ class ManifestParser(object):
 
                 files.update([os.path.join(dirpath, filename) for filename in filenames])
 
-        #
-        import pdb; pdb.set_trace()
+        return files == set(self.paths())
 
     ### methods for output
 
