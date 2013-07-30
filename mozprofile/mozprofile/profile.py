@@ -275,13 +275,33 @@ class Profile(object):
         for prefs_file in ('user.js', 'prefs.js'):
             path = os.path.join(self.profile, prefs_file)
             if os.path.exists(path):
+
+                # prefs that get their own section
+                # This is currently only 'network.proxy.autoconfig_url'
+                # but could be expanded to include others
+                section_prefs = ['network.proxy.autoconfig_url']
+                line_length = 80
+                line_length_buffer = 10 # buffer for 80 character display: length = 80 - len(key) - len(': ') - line_length_buffer
+                line_length_buffer += len(': ')
+                def format_value(key, value):
+                    if key not in section_prefs:
+                        return value
+                    max_length = line_length - len(key) - line_length_buffer
+                    if len(value) > max_length:
+                        value = '%s...' % value[:max_length]
+                    return value
+
                 prefs = Preferences.read_prefs(path)
                 if prefs:
                     prefs = dict(prefs)
                     parts.append((prefs_file,
-                    '\n%s' %('\n'.join(['%s: %s' % (key, ('%s...' % prefs[key][:75]) if key == 'network.proxy.autoconfig_url' else prefs[key])
+                    '\n%s' %('\n'.join(['%s: %s' % (key, format_value(prefs[key]))
                                         for key in sorted(prefs.keys())
                                         ]))))
+
+                    # Currently hardcorded to 'network.proxy.autoconfig_url'
+                    # but could be generalized, possibly with a generalized (simple)
+                    # JS-parser
                     network_proxy_autoconfig = prefs.get('network.proxy.autoconfig_url')
                     if network_proxy_autoconfig and network_proxy_autoconfig.strip():
                         network_proxy_autoconfig = network_proxy_autoconfig.strip()
