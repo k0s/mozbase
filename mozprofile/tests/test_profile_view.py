@@ -16,7 +16,7 @@ class TestProfilePrint(unittest.TestCase):
 
     def test_profileprint(self):
         """
-        test the print_profile function
+        test the summary function
         """
 
         keys = set(['Files', 'Path', 'user.js'])
@@ -27,7 +27,7 @@ class TestProfilePrint(unittest.TestCase):
         tempdir = tempfile.mkdtemp()
         try:
             profile = mozprofile.FirefoxProfile(tempdir)
-            parts = profile.print_profile(return_parts=True)
+            parts = profile.summary(return_parts=True)
             parts = dict(parts)
 
             self.assertEqual(parts['Path'], tempdir)
@@ -45,7 +45,7 @@ class TestProfilePrint(unittest.TestCase):
         """
 
         profile = mozprofile.Profile()
-        self.assertEqual(str(profile), profile.print_profile())
+        self.assertEqual(str(profile), profile.summary())
 
     def test_profile_diff(self):
         profile1 = mozprofile.Profile()
