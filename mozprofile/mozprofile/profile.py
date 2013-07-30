@@ -295,7 +295,7 @@ class Profile(object):
                 if prefs:
                     prefs = dict(prefs)
                     parts.append((prefs_file,
-                    '\n%s' %('\n'.join(['%s: %s' % (key, format_value(prefs[key]))
+                    '\n%s' %('\n'.join(['%s: %s' % (key, format_value(key, prefs[key]))
                                         for key in sorted(prefs.keys())
                                         ]))))
 
