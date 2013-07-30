@@ -21,7 +21,7 @@ def diff(profile1, profile2, diff_function=difflib.unified_diff):
         profile = profiles[index]
 
         # first part, the path, isn't useful for diffing
-        parts[index] = profile.print_profile(return_parts=True)[1:]
+        parts[index] = profile.summary(return_parts=True)[1:]
 
         parts_dict[index] = dict(parts[index])
 

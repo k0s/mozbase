@@ -259,7 +259,7 @@ class Profile(object):
 
     ### methods for introspection
 
-    def print_profile(self, return_parts=False):
+    def summary(self, return_parts=False):
         """
         returns string summarizing profile information.
         if return_parts is true, return the (Part_name, value) list
@@ -308,7 +308,7 @@ class Profile(object):
                                         for key, value in parts]))
         return retval
 
-    __str__ = print_profile
+    __str__ = summary
 
 
 class FirefoxProfile(Profile):
