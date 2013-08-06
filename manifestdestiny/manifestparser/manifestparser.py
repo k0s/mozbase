@@ -795,6 +795,17 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
 
     retval = []
     include = []
+
+    class FilteredDirectoryContents(object):
+        def __init__(self, pattern=pattern, ignore=ignore):
+            _cache = {} # cache of (dirnames, filenames)
+        def __call__(self, directory):
+            """returns 2-tuple: dirnames, filenames"""
+        def empty(self, directory):
+            """
+            returns if a directory and its descendents are empty
+            """
+
     for directory in directories:
         for dirpath, dirnames, filenames in os.walk(directory):
 
