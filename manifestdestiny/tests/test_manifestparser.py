@@ -113,7 +113,7 @@ class TestManifestparser(unittest.TestCase):
         # First, stub out a directory with files in it::
         def create_stub():
             directory = tempfile.mkdtemp()
-            for i in 'foo', 'bar', 'fleem':
+            for i in ('foo', 'bar', 'fleem'):
                 file(os.path.join(directory, i), 'w').write(i)
             subdir = os.path.join(directory, 'subdir')
             os.mkdir(subdir)

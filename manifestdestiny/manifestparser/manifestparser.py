@@ -389,10 +389,11 @@ class ManifestParser(object):
                 if not os.path.isabs(include_file):
                     include_file = os.path.join(self.getRelativeRoot(here), include_file)
                 if not os.path.exists(include_file):
+                    message = "Included file '%s' does not exist" % include_file
                     if self.strict:
-                        raise IOError("File '%s' does not exist" % include_file)
+                        raise IOError(message)
                     else:
-                        continue
+                        sys.stderr.write("%s\n" % message)
                 include_defaults = data.copy()
                 self._read(root, include_file, include_defaults)
                 continue
@@ -782,9 +783,14 @@ class TestManifest(ManifestParser):
 
 ### utility function(s); probably belongs elsewhere
 
-def convert(directories, pattern=None, ignore=(), write=None):
+def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
     """
     convert directories to a simple manifest
+    - ignore -> ignore_directories, ignore_files
+    TODO:
+    - write : basename of manifest to write
+    TODO:
+    - ignore/pattern: apply to both directories and filenames
     """
 
     retval = []
@@ -793,7 +799,7 @@ def convert(directories, pattern=None, ignore=(), write=None):
         for dirpath, dirnames, filenames in os.walk(directory):
 
             # filter out directory names
-            dirnames = [ i for i in dirnames if i not in ignore ]
+            dirnames = [i for i in dirnames if i not in ignore]
             dirnames.sort()
 
             # reference only the subdirectory
@@ -811,12 +817,16 @@ def convert(directories, pattern=None, ignore=(), write=None):
             filenames.sort()
 
             # write a manifest for each directory
-            if write and (dirnames or filenames):
-                manifest = file(os.path.join(_dirpath, write), 'w')
-                for dirname in dirnames:
-                    print >> manifest, '[include:%s]' % os.path.join(dirname, write)
-                for filename in filenames:
-                    print >> manifest, '[%s]' % filename
+            manifest = os.path.join(_dirpath, write)
+            if write and (dirnames or filenames) and ((not overwite) and os.path.exists(manifest)):
+                with file(manifest, 'w') as manifest:
+                    for dirname in dirnames:
+                        # TODO: if dirname doesn't have a manifest in it,
+                        # then [include:] points to a non-existant file
+                        print >> manifest, '[include:%s]' % os.path.join(dirname, write)
+                    for filename in filenames:
+                        print >> manifest, '[%s]' % filename
+
                 manifest.close()
 
             # add to the list
@@ -827,7 +837,7 @@ def convert(directories, pattern=None, ignore=(), write=None):
         return # the manifests have already been written!
 
     retval.sort()
-    retval = ['[%s]' % filename for filename in retval]
+    retval = [('[%s]' % filename) for filename in retval]
     return '\n'.join(retval)
 
 ### command line attributes
