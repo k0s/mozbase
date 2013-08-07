@@ -824,14 +824,25 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
                 pattern = [pattern]
             self.pattern = pattern
             self.ignore = ignore
-            self._cache = cache or {} # cache of (dirnames, filenames)
+
+            # cache of (dirnames, filenames) keyed on directory real path
+            # assumes volume is frozen throughout scope
+            self._cache = cache or {}
 
         def __call__(self, directory):
             """returns 2-tuple: dirnames, filenames"""
+
             directory = os.path.realpath(directory)
             if directory not in self._cache:
                 dirnames, filenames = self.contents(directory)
-                
+
+                # filter out directories without progeny
+                # XXX recursive: should keep track of seen directories
+                dirnames = [ dirname for dirname in dirnames
+                             if not self.empty(os.path.join(directory, dirname)) ]
+
+                self._cache[directory] = (tuple(dirnames), filenames)
+
             return self._cache[directory]
 
         def empty(self, directory):
