@@ -786,25 +786,66 @@ class TestManifest(ManifestParser):
 def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
     """
     convert directories to a simple manifest
-    - ignore -> ignore_directories, ignore_files
-    TODO:
-    - write : basename of manifest to write
-    TODO:
-    - ignore/pattern: apply to both directories and filenames
+    - pattern : shell pattern (glob) or patterns of filenames to match
+    - ignore : directory names to ignore
+    - write : filename of manifests to write
+    - overwrite : whether to overwrite existing files of given name
     """
 
+    # TODO:
+    # - should be method of ManifestParser
+    #
+    # - should be able to choose relative v absolute paths;
+    #   if `write` is relative path and directories are descendents,
+    #   paths should be relative;
+    #   if `write` is an absolute path or directories are not
+    #   descendents, path should be absolute.
+    #   While this puts higher complexity on `write`, it is not
+    #   ambiguous:  pass (e.g.) './manifest.ini' v 'manifest.ini'
+    #   if relative paths to the current directory is desired,
+    #   or (e.g.) `os.path.abspath('manifest.ini')` if absolute
+    #   paths are desired.
+    #   An override could be introduced, but this mostly does the right
+    #   thing.
+    #
+    # - write could take a file-like object; in this case,
+    #   paths will be absolute
+
+    if write and os.path.sep in write:
+        raise AssertionError("`write` should specify filename only, not relative or absolute path")
+
     retval = []
-    include = []
+    # include = [] # XXX unused; could be used for relative paths
 
     class FilteredDirectoryContents(object):
-        def __init__(self, pattern=pattern, ignore=ignore):
-            _cache = {} # cache of (dirnames, filenames)
+
+        def __init__(self, pattern=pattern, ignore=ignore, cache=None):
+            if isinstance(pattern, basestring):
+                pattern = [pattern]
+            self.pattern = pattern
+            self.ignore = ignore
+            self._cache = cache or {} # cache of (dirnames, filenames)
+
         def __call__(self, directory):
             """returns 2-tuple: dirnames, filenames"""
+            directory = os.path.realpath(directory)
+            if directory not in self._cache:
+                dirnames, filenames = self.contents(directory)
+                
+            return self._cache[directory]
+
         def empty(self, directory):
             """
             returns if a directory and its descendents are empty
             """
+            return self(directory) != ((), ())
+
+        def contents(self, directory):
+            """
+            return directory contents as (dirnames, filenames)
+            with `ignore` and `pattern` applied
+            """
+            raise NotImplementedError
 
     for directory in directories:
         for dirpath, dirnames, filenames in os.walk(directory):
