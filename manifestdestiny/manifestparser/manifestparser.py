@@ -856,7 +856,21 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             return directory contents as (dirnames, filenames)
             with `ignore` and `pattern` applied
             """
-            raise NotImplementedError
+
+            # split directories and files
+            dirnames = []
+            filenames = []
+            for item in os.listdir(directory):
+                path = os.path.join(directory, item)
+                if os.path.isdir(path):
+                    dirnames.append(item)
+                else:
+                    # XXX not sure what to do if neither a file or directory
+                    # (if anything)
+                    assert os.path.isfile(path)
+
+                    filenames.append(item)
+            return (tuple(dirnames), tuple(filenames))
 
     for directory in directories:
         for dirpath, dirnames, filenames in os.walk(directory):
