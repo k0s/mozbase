@@ -812,7 +812,8 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
     # - write could take a file-like object; in this case,
     #   paths will be absolute
     #
-    # - @classmethod 
+    # - @classmethod
+    #   def directory_to_manifest(cls):
 
     if write and os.path.sep in write:
         raise AssertionError("`write` should specify filename only, not relative or absolute path")
