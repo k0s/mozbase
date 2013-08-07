@@ -916,19 +916,20 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             filenames.sort()
 
             # write a manifest for each directory
-            manifest = os.path.join(_dirpath, write)
-            if write and (dirnames or filenames) and ((not overwite) and os.path.exists(manifest)):
-                with file(manifest, 'w') as manifest:
-                    for dirname in dirnames:
-                        # TODO: if dirname doesn't have a manifest in it,
-                        # then [include:] points to a non-existant file
-                        print >> manifest, '[include:%s]' % os.path.join(dirname, write)
-                    for filename in filenames:
-                        print >> manifest, '[%s]' % filename
+            if write:
+                manifest = os.path.join(_dirpath, write)
+                if (dirnames or filenames) and ((not overwite) and os.path.exists(manifest)):
+                    with file(manifest, 'w') as manifest:
+                        for dirname in dirnames:
+                            # TODO: if dirname doesn't have a manifest in it,
+                            # then [include:] points to a non-existant file
+                            print >> manifest, '[include:%s]' % os.path.join(dirname, write)
+                        for filename in filenames:
+                            print >> manifest, '[%s]' % filename
 
-                manifest.close()
 
             # add to the list
+            # TODO: delete; return ManifestParser object
             retval.extend([denormalize_path(os.path.join(dirpath, filename))
                            for filename in filenames])
 
