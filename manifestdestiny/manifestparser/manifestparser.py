@@ -811,6 +811,8 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
     #
     # - write could take a file-like object; in this case,
     #   paths will be absolute
+    #
+    # - @classmethod 
 
     if write and os.path.sep in write:
         raise AssertionError("`write` should specify filename only, not relative or absolute path")
@@ -821,9 +823,10 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
     class FilteredDirectoryContents(object):
 
         def __init__(self, pattern=pattern, ignore=ignore, cache=None):
+            if pattern is None:
+                pattern = set()
             if isinstance(pattern, basestring):
                 pattern = [pattern]
-            self.pattern = set(pattern)
             self.ignore = set(ignore)
 
             # cache of (dirnames, filenames) keyed on directory real path
@@ -852,7 +855,7 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             """
             return self(directory) != ((), ())
 
-        def contents(self, directory):
+        def contents(self, directory, sort=None):
             """
             return directory contents as (dirnames, filenames)
             with `ignore` and `pattern` applied
@@ -877,13 +880,17 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             # and could conceivably go to a separate method
             dirnames = [dirname for dirname in dirnames
                         if dirname not in self.ignore]
+            filenames = set(filenames)
+            # we use set functionality to filter filenames
+            matches = set()
             for pattern in self.patterns:
-                filenames = fnmatch.filter(filenames)
+                matches.update(fnmatch.filter(filenames, pattern))
+                # TODO: remove from filenames
 
             return (tuple(dirnames), tuple(filenames))
 
     # make a filtered directory object
-    contents = DirectoryContents(pattern=pattern, ignore=ignore)
+    contents = FilteredDirectoryContents(pattern=pattern, ignore=ignore)
 
     for directory in directories:
         for dirpath, dirnames, filenames in os.walk(directory):
@@ -898,7 +905,7 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
 
             # this is done to avoid writing the manifest to ignored
             # subdirectories...i think?
-            # it is clever, maybe, weird, and, I think, unnecessary
+            # it is clever, maybe, weird, and, I think, unnecessary (TO TEST)
             if dirpath.split(os.path.sep)[0] in ignore:
                 continue
 
