@@ -877,7 +877,8 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             # and could conceivably go to a separate method
             dirnames = [dirname for dirname in dirnames
                         if dirname not in self.ignore]
-            filenames = fnmatch.filter(filenames)
+            for pattern in self.patterns:
+                filenames = fnmatch.filter(filenames)
 
             return (tuple(dirnames), tuple(filenames))
 
