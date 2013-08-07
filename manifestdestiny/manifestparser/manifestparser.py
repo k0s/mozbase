@@ -829,6 +829,7 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
                 pattern = set()
             if isinstance(pattern, basestring):
                 pattern = [pattern]
+            self.patterns = pattern
             self.ignore = set(ignore)
 
             # cache of (dirnames, filenames) keyed on directory real path
@@ -892,19 +893,17 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             return (tuple(dirnames), tuple(filenames))
 
     # make a filtered directory object
-    contents = FilteredDirectoryContents(pattern=pattern, ignore=ignore)
+    directory_contents = FilteredDirectoryContents(pattern=pattern, ignore=ignore)
 
     for directory in directories:
         for dirpath, dirnames, filenames in os.walk(directory):
 
+            _dirnames, filenames = directory_contents(dirpath)
+
             # filter out directory names
-            dirnames[:] = sorted([i for i in dirnames if i not in ignore])
-            
-            # filter by glob
-            if pattern:
-                filenames = [filename for filename in filenames
-                             if fnmatch(filename, pattern)]
-            filenames.sort()
+            dirnames[:] = sorted(_dirnames)
+
+            filenames = sorted(filenames)
 
             # write a manifest for each directory
             if write:
