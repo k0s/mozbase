@@ -12,11 +12,12 @@ __all__ = ['read_ini', # .ini reader
            'ManifestParser', 'TestManifest', 'convert', # manifest handling
            'parse', 'ParseError', 'ExpressionParser'] # conditional expression parser
 
+import fnmatch
 import os
 import re
 import shutil
 import sys
-from fnmatch import fnmatch
+
 from optparse import OptionParser
 
 relpath = os.path.relpath
@@ -822,8 +823,8 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
         def __init__(self, pattern=pattern, ignore=ignore, cache=None):
             if isinstance(pattern, basestring):
                 pattern = [pattern]
-            self.pattern = pattern
-            self.ignore = ignore
+            self.pattern = set(pattern)
+            self.ignore = set(ignore)
 
             # cache of (dirnames, filenames) keyed on directory real path
             # assumes volume is frozen throughout scope
@@ -868,8 +869,16 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
                     # XXX not sure what to do if neither a file or directory
                     # (if anything)
                     assert os.path.isfile(path)
-
                     filenames.append(item)
+
+            # filter contents
+            # this could be done in situ re the above for loop
+            # but it is really disparate in intent
+            # and could conceivably go to a separate method
+            dirnames = [dirname for dirname in dirnames
+                        if dirname not in self.ignore]
+            filenames = fnmatch.filter(filenames)
+
             return (tuple(dirnames), tuple(filenames))
 
     for directory in directories:
