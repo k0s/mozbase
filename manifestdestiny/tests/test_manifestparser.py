@@ -149,6 +149,18 @@ class TestManifestparser(unittest.TestCase):
             shutil.rmtree(stub)
 
         # test manifest ignore
+        stub = create_stub()
+        try:
+            convert([stub], write='manifest.ini', ignore=('subdir',))
+            parser = ManifestParser()
+            parser.read(os.path.join(stub, 'manifest.ini'))
+            self.assertEqual([i['name'] for i in parser.tests],
+                             ['bar', 'fleem', 'foo'])
+            parser = ManifestParser()
+            self.assertFalse(os.path.exists(stub, 'subdir', 'manifest.ini'))
+        finally:
+            shutil.rmtree(stub)
+
 
     def test_copy(self):
         """Test our ability to copy a set of manifests"""
