@@ -918,7 +918,7 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             # write a manifest for each directory
             if write:
                 manifest = os.path.join(_dirpath, write)
-                if (dirnames or filenames) and ((not overwite) and os.path.exists(manifest)):
+                if (dirnames or filenames) and ((not overwrite) and os.path.exists(manifest)):
                     with file(manifest, 'w') as manifest:
                         for dirname in dirnames:
                             # TODO: if dirname doesn't have a manifest in it,
