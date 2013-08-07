@@ -133,18 +133,20 @@ class TestManifestparser(unittest.TestCase):
 
         # Now do the same thing but keep the manifests in place:
         stub = create_stub()
-        convert([stub], write='manifest.ini')
-        self.assertEqual(sorted(os.listdir(stub)),
-                         ['bar', 'fleem', 'foo', 'manifest.ini', 'subdir'])
-        parser = ManifestParser()
-        parser.read(os.path.join(stub, 'manifest.ini'))
-        self.assertEqual([i['name'] for i in parser.tests],
-                         ['subfile', 'bar', 'fleem', 'foo'])
-        parser = ManifestParser()
-        parser.read(os.path.join(stub, 'subdir', 'manifest.ini'))
-        self.assertEqual(len(parser.tests), 1)
-        self.assertEqual(parser.tests[0]['name'], 'subfile')
-        shutil.rmtree(stub)
+        try:
+            convert([stub], write='manifest.ini')
+            self.assertEqual(sorted(os.listdir(stub)),
+                             ['bar', 'fleem', 'foo', 'manifest.ini', 'subdir'])
+            parser = ManifestParser()
+            parser.read(os.path.join(stub, 'manifest.ini'))
+            self.assertEqual([i['name'] for i in parser.tests],
+                             ['subfile', 'bar', 'fleem', 'foo'])
+            parser = ManifestParser()
+            parser.read(os.path.join(stub, 'subdir', 'manifest.ini'))
+            self.assertEqual(len(parser.tests), 1)
+            self.assertEqual(parser.tests[0]['name'], 'subfile')
+        finally:
+            shutil.rmtree(stub)
 
         # test manifest ignore
 
