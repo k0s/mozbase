@@ -896,6 +896,9 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             _dirpath = dirpath
             dirpath = dirpath.split(directory, 1)[-1].strip(os.path.sep)
 
+            # this is done to avoid writing the manifest to ignored
+            # subdirectories...i think?
+            # it is clever, maybe, weird, and, I think, unnecessary
             if dirpath.split(os.path.sep)[0] in ignore:
                 continue
 
