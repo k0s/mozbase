@@ -882,6 +882,9 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
 
             return (tuple(dirnames), tuple(filenames))
 
+    # make a filtered directory object
+    contents = DirectoryContents(pattern=pattern, ignore=ignore)
+
     for directory in directories:
         for dirpath, dirnames, filenames in os.walk(directory):
 
@@ -900,7 +903,6 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             if pattern:
                 filenames = [filename for filename in filenames
                              if fnmatch(filename, pattern)]
-
             filenames.sort()
 
             # write a manifest for each directory
