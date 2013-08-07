@@ -794,7 +794,10 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
     """
 
     # TODO:
-    # - should be method of ManifestParser
+    # - should be method of ManifestParser:
+    #   @classmethod
+    #   def directory_to_manifest(cls):
+    #     "returns ManifestParser object"
     #
     # - should be able to choose relative v absolute paths;
     #   if `write` is relative path and directories are descendents,
@@ -812,8 +815,7 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
     # - write could take a file-like object; in this case,
     #   paths will be absolute
     #
-    # - @classmethod
-    #   def directory_to_manifest(cls):
+    # - more tests
 
     if write and os.path.sep in write:
         raise AssertionError("`write` should specify filename only, not relative or absolute path")
@@ -897,20 +899,8 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
         for dirpath, dirnames, filenames in os.walk(directory):
 
             # filter out directory names
-            dirnames = [i for i in dirnames if i not in ignore]
-            dirnames.sort()
-
-            # reference only the subdirectory
-            _dirpath = dirpath
-            dirpath = dirpath.split(directory, 1)[-1].strip(os.path.sep)
-
-            # this is done to avoid writing the manifest to ignored
-            # subdirectories...i think?
-            # it is clever, maybe, weird, and, I think, unnecessary (TO TEST)
-            if dirpath.split(os.path.sep)[0] in ignore:
-                import pdb; pdb.set_trace()
-                continue
-
+            dirnames[:] = sorted([i for i in dirnames if i not in ignore])
+            
             # filter by glob
             if pattern:
                 filenames = [filename for filename in filenames

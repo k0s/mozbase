@@ -157,7 +157,7 @@ class TestManifestparser(unittest.TestCase):
             self.assertEqual([i['name'] for i in parser.tests],
                              ['bar', 'fleem', 'foo'])
             parser = ManifestParser()
-            self.assertFalse(os.path.exists(stub, 'subdir', 'manifest.ini'))
+            self.assertFalse(os.path.exists(os.path.join(stub, 'subdir', 'manifest.ini')))
         finally:
             shutil.rmtree(stub)
 
