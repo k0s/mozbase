@@ -251,7 +251,6 @@ def denormalize_path(path):
         return path.replace(os.path.sep, '/')
     return path
 
-
 def read_ini(fp, variables=None, default='DEFAULT',
              comments=';#', separators=('=', ':'),
              strict=True):
