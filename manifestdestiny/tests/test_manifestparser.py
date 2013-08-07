@@ -111,9 +111,10 @@ class TestManifestparser(unittest.TestCase):
         """
 
         # First, stub out a directory with files in it::
+        files = ('foo', 'bar', 'fleem')
         def create_stub():
             directory = tempfile.mkdtemp()
-            for i in ('foo', 'bar', 'fleem'):
+            for i in files:
                 file(os.path.join(directory, i), 'w').write(i)
             subdir = os.path.join(directory, 'subdir')
             os.mkdir(subdir)
@@ -145,6 +146,7 @@ class TestManifestparser(unittest.TestCase):
         self.assertEqual(parser.tests[0]['name'], 'subfile')
         shutil.rmtree(stub)
 
+        # test manifest ignore
 
     def test_copy(self):
         """Test our ability to copy a set of manifests"""

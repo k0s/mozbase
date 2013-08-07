@@ -908,6 +908,7 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             # subdirectories...i think?
             # it is clever, maybe, weird, and, I think, unnecessary (TO TEST)
             if dirpath.split(os.path.sep)[0] in ignore:
+                import pdb; pdb.set_trace()
                 continue
 
             # filter by glob
