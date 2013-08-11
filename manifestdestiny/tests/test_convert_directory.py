@@ -37,10 +37,10 @@ class TestDirectoryConversion(unittest.TestCase):
 
         # Make a manifest for it:
         self.assertEqual(convert([stub]),
-                         """[bar]
-[fleem]
-[foo]
-[subdir/subfile]""")
+                         """[%(stub)s/bar]
+[%(stub)s/fleem]
+[%(stub)s/foo]
+[%(stub)s/subdir/subfile]""" % dict(stub=stub))
         shutil.rmtree(stub) # cleanup
 
         # Now do the same thing but keep the manifests in place:

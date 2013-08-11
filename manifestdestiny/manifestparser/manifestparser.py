@@ -917,7 +917,6 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
                         for filename in filenames:
                             print >> manifest, '[%s]' % filename
 
-
             # add to the list
             # TODO: delete; return ManifestParser object
             retval.extend([denormalize_path(os.path.join(dirpath, filename))
