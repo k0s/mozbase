@@ -858,7 +858,7 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             """
             returns if a directory and its descendents are empty
             """
-            return self(directory) != ((), ())
+            return self(directory) == ((), ())
 
         def contents(self, directory, sort=None):
             """
@@ -892,7 +892,6 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
                 for pattern in self.patterns:
                     filtered = fnmatch.filter(filenames, pattern)
                     foo = matches.update(filtered)
-                    import pdb; pdb.set_trace()
                     # TODO: remove from filenames
 
             return (tuple(dirnames), tuple(filenames))
@@ -906,13 +905,12 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             # get the directory contents from the caching object
             _dirnames, filenames = directory_contents(dirpath)
             filenames = sorted(filenames)
-
             # filter out directory names
             dirnames[:] = sorted(_dirnames)
 
             # write a manifest for each directory
             if write:
-                manifest = os.path.join(_dirpath, write)
+                manifest = os.path.join(dirpath, write)
                 if (dirnames or filenames) and (not overwrite and not os.path.exists(manifest)):
                     with file(manifest, 'w') as manifest:
                         for dirname in dirnames:
