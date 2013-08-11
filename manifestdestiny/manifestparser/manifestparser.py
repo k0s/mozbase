@@ -900,6 +900,7 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
     for directory in directories:
         for dirpath, dirnames, filenames in os.walk(directory):
 
+            # get the directory contents from the caching object
             _dirnames, filenames = directory_contents(dirpath)
             filenames = sorted(filenames)
 
