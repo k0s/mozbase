@@ -888,9 +888,12 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             filenames = set(filenames)
             # we use set functionality to filter filenames
             matches = set()
-            for pattern in self.patterns:
-                matches.update(fnmatch.filter(filenames, pattern))
-                # TODO: remove from filenames
+            if self.patterns:
+                for pattern in self.patterns:
+                    filtered = fnmatch.filter(filenames, pattern)
+                    foo = matches.update(filtered)
+                    import pdb; pdb.set_trace()
+                    # TODO: remove from filenames
 
             return (tuple(dirnames), tuple(filenames))
 
