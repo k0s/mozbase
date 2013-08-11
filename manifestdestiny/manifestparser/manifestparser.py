@@ -840,6 +840,7 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             """returns 2-tuple: dirnames, filenames"""
 
             directory = os.path.realpath(directory)
+            print directory
             if directory not in self._cache:
                 dirnames, filenames = self.contents(directory)
 
@@ -850,6 +851,7 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
 
                 self._cache[directory] = (tuple(dirnames), filenames)
 
+            # return cached values
             return self._cache[directory]
 
         def empty(self, directory):
@@ -899,11 +901,10 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
         for dirpath, dirnames, filenames in os.walk(directory):
 
             _dirnames, filenames = directory_contents(dirpath)
+            filenames = sorted(filenames)
 
             # filter out directory names
             dirnames[:] = sorted(_dirnames)
-
-            filenames = sorted(filenames)
 
             # write a manifest for each directory
             if write:
