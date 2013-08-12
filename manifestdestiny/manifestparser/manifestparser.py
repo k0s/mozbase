@@ -376,8 +376,10 @@ class ManifestParser(object):
 
     def _read(self, root, filename, defaults):
 
-        # get directory of this file
-        here = os.path.dirname(os.path.abspath(filename))
+        # get directory of this file if not file-like object
+        here = None
+        if isinstance(filename, string):
+            here = os.path.dirname(os.path.abspath(filename))
         defaults['here'] = here
 
         # read the configuration
@@ -441,10 +443,10 @@ class ManifestParser(object):
 
             # set the per file defaults
             defaults = _defaults.copy()
-            if not isinstance(filename, string):
-                import pdb; pdb.set_trace()
-            here = os.path.dirname(os.path.abspath(filename))
-            defaults['here'] = here
+            here = None
+            if isinstance(filename, string):
+                here = os.path.dirname(os.path.abspath(filename))
+                defaults['here'] = here
 
             if self.rootdir is None:
                 # set the root directory
