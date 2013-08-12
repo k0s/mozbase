@@ -731,23 +731,10 @@ class ManifestParser(object):
         if relative paths to the current directory is desired,
         or (e.g.) `os.path.abspath('manifest.ini')` if absolute
         paths are desired.
-        """
-    # - should be able to choose relative v absolute paths;
-    #   if `write` is relative path and directories are descendents,
-    #   paths should be relative;
-    #   if `write` is an absolute path or directories are not
-    #   descendents, path should be absolute.
-    #   While this puts higher complexity on `write`, it is not
-    #   ambiguous:  pass (e.g.) './manifest.ini' v 'manifest.ini'
-    #   if relative paths to the current directory is desired,
-    #   or (e.g.) `os.path.abspath('manifest.ini')` if absolute
-    #   paths are desired.
-    #   An override could be introduced, but this mostly does the right
-    #   thing.
-    #
-    # - write could take a file-like object; in this case,
-    #   paths will be absolute
 
+        Write can also take a file-like object; in this case,
+        paths will be governed by 
+        """
 
 
 class TestManifest(ManifestParser):
