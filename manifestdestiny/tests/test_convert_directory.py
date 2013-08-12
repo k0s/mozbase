@@ -11,6 +11,7 @@ import unittest
 
 from manifestparser import convert
 from manifestparser import ManifestParser
+from StringIO import StringIO
 
 here = os.path.dirname(os.path.abspath(__file__))
 
@@ -41,7 +42,8 @@ class TestDirectoryConversion(unittest.TestCase):
             self.assertTrue(os.path.exists(stub) and os.path.isdir(stub))
 
             # Make a manifest for it:
-            self.assertEqual(convert([stub]),
+            fp = StringIO()
+            self.assertEqual(convert([stub]).write(fp=fp),
                          """[%(stub)s/bar]
 [%(stub)s/fleem]
 [%(stub)s/foo]
