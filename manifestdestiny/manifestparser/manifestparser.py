@@ -419,11 +419,8 @@ class ManifestParser(object):
             _relpath = path
             if '://' not in path: # don't futz with URLs
                 path = normalize_path(path)
-                if not os.path.isabs(path):
-                    try:
-                        path = os.path.join(here, path)
-                    except:
-                        import pdb; pdb.set_trace()
+                if here and not os.path.isabs(path):
+                    path = os.path.join(here, path)
                 if self.rootdir is not None:
                     _relpath = relpath(path, self.rootdir)
 
