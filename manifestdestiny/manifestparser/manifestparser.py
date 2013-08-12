@@ -19,6 +19,7 @@ import shutil
 import sys
 
 from optparse import OptionParser
+from StringIO import StringIO
 
 relpath = os.path.relpath
 
@@ -743,6 +744,7 @@ class ManifestParser(object):
 
         # determine output
         string = (basestring,)
+        in_tree = False # whether to output files of name `write` in each directory
         if write:
             if isinstance(write, string):
                 if relative_to:
@@ -752,14 +754,18 @@ class ManifestParser(object):
                     if os.path.sep in write:
                         raise AssertionError("`write` should specify filename only, not relative or absolute path")
                     absolute = False
+                    in_tree = True
+                    manifests = []
             else:
                 # write is a file-like object
+                manifests = [write]
                 raise NotImplementedError
         else:
+            # return in-memory buffer
             absolute = True
+            write = StringIO()
+            manifests = [write]
 
-        # manifests to return
-        manifest_files = []
 
         class FilteredDirectoryContents(object):
             """class to filter directory contents"""
