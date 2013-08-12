@@ -861,23 +861,17 @@ class ManifestParser(object):
                     if (dirnames or filenames) and not (overwrite and os.path.exists(manifest)):
                         with file(manifest, 'w') as manifest:
                             for dirname in dirnames:
-                                # TODO: if dirname doesn't have a manifest in it,
-                                # then [include:] points to a non-existant file
+
                                 print >> manifest, '[include:%s]' % os.path.join(dirname, write)
                                 for filename in filenames:
                                     print >> manifest, '[%s]' % filename
 
-                # add to the list
-                # TODO: delete; return ManifestParser object
-                retval.extend([denormalize_path(os.path.join(dirpath, filename))
-                               for filename in filenames])
+                        # add to list of manifests
+                        if index <= len(manifests):
+                            manifests.append(manifest)
 
-        if write:
-            return # the manifests have already been written!
-
-        retval.sort()
-        retval = [('[%s]' % filename) for filename in retval]
-        return '\n'.join(retval)
+        # make a ManifestParser instance
+        return cls(manifests=manifests)
 
 convert = ManifestParser.from_directories
 
