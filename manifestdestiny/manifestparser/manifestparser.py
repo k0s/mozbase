@@ -873,7 +873,8 @@ class ManifestParser(object):
                         if index <= len(manifests):
                             manifests.append(manifest_path)
 
-        # rewind buffers
+        if not isinstance(write, list):
+            # 
         import pdb; pdb.set_trace()
 
         # make a ManifestParser instance
