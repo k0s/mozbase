@@ -769,14 +769,19 @@ class ManifestParser(object):
         paths will be governed by `relative_to`.
         """
 
+        def is_root(path):
+            """handle filesystem root (could go -> mozfile)"""
+            # from http://stackoverflow.com/questions/12041525/a-system-independent-way-using-python-to-get-the-root-directory-drive-on-which-p
+            return not os.path.split(path)[1]
+
         # determine output
         string = (basestring,)
         in_tree = False # whether to output files of name `write` in each directory
         if write:
             if isinstance(write, string):
+                # write is a path
                 if relative_to:
-                    absolute = False
-                    raise NotImplementedError
+                    absolute = is_root(relative_to)
                 else:
                     if os.path.sep in write:
                         raise AssertionError("`write` should specify filename only, not relative or absolute path")
@@ -790,7 +795,7 @@ class ManifestParser(object):
             # return in-memory buffer
             absolute = True
             if relative_to:
-                absolute=False
+                absolute = is_root(relative_to)
             write = StringIO()
             manifests = write
 
