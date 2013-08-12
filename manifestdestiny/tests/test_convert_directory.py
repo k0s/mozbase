@@ -115,6 +115,11 @@ class TestDirectoryConversion(unittest.TestCase):
         finally:
             shutil.rmtree(stub)
 
+    def test_relpath(self);
+        """test convert `relative_to` functionality"""
+
+        stub = None
+
     def test_update(self):
         """
         Test our ability to update tests from a manifest and a directory of
