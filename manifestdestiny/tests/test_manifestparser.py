@@ -14,7 +14,7 @@ from StringIO import StringIO
 
 here = os.path.dirname(os.path.abspath(__file__))
 
-class TestManifestparser(unittest.TestCase):
+class TestManifestParser(unittest.TestCase):
     """
     Test the manifest parser
 

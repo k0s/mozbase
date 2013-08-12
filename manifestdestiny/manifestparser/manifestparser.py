@@ -409,7 +409,10 @@ class ManifestParser(object):
             # otherwise an item
             test = data
             test['name'] = section
-            test['manifest'] = os.path.abspath(filename)
+            if isinstance(filename, string):
+                test['manifest'] = os.path.abspath(filename)
+            else:
+                test['manifest'] = None # file pointer
 
             # determine the path
             path = test.get('path', section)
@@ -418,7 +421,8 @@ class ManifestParser(object):
                 path = normalize_path(path)
                 if not os.path.isabs(path):
                     path = os.path.join(here, path)
-                _relpath = relpath(path, self.rootdir)
+                if self.rootdir is not None:
+                    _relpath = relpath(path, self.rootdir)
 
             test['path'] = path
             test['relpath'] = _relpath
@@ -772,13 +776,11 @@ class ManifestParser(object):
             else:
                 # write is a file-like object
                 manifests = write
-                raise NotImplementedError
         else:
             # return in-memory buffer
             absolute = True
             write = StringIO()
             manifests = write
-
 
         class FilteredDirectoryContents(object):
             """class to filter directory contents"""
@@ -877,8 +879,8 @@ class ManifestParser(object):
                 # filter out directory names
                 dirnames[:] = _dirnames
 
-                # write a manifest for each directory
-                if write and in_tree:
+                if in_tree:
+                    # write a manifest for each directory
                     manifest_path = os.path.join(dirpath, write)
                     if (dirnames or filenames) and not (overwrite and os.path.exists(manifest)):
                         with file(manifest_path, 'w') as manifest:
@@ -891,6 +893,14 @@ class ManifestParser(object):
                         # add to list of manifests
                         if index <= len(manifests):
                             manifests.append(manifest_path)
+                else:
+                    # normalize paths
+                    filenames = [os.path.join(dirpath, filename)
+                                 for filename in filenames]
+
+                    # write to manifest
+                    print >> write, '\n'.join(['[%s]' % (filename)
+                                               for filename in filenames])
 
         if not isinstance(manifests, list):
             # manifests/write is a file-like object
