@@ -774,9 +774,17 @@ class ManifestParser(object):
             # from http://stackoverflow.com/questions/12041525/a-system-independent-way-using-python-to-get-the-root-directory-drive-on-which-p
             return not os.path.split(path)[1]
 
+        def should_write(path):
+            """should we write the manifest?"""
+            if os.path.exists(path) and overwrite:
+                return False
+            return True
+
         # determine output
         string = (basestring,)
         in_tree = False # whether to output files of name `write` in each directory
+        manifest_file = None
+
         if write:
             if isinstance(write, string):
                 # write is a path
@@ -784,10 +792,17 @@ class ManifestParser(object):
                     absolute = is_root(relative_to)
                 else:
                     if os.path.sep in write:
-                        raise AssertionError("`write` should specify filename only, not relative or absolute path")
-                    absolute = False
-                    in_tree = True
-                    manifests = []
+                        if os.path.isabs(write):
+                            absolute = True
+                        else:
+                            absolute = False
+                            relative_to = write
+                        if should_write(write):
+                            write = file(write, 'w')
+                    else:
+                        absolute = False
+                        in_tree = True
+                        manifests = []
             else:
                 # write is a file-like object
                 manifests = write
@@ -898,7 +913,7 @@ class ManifestParser(object):
                 if in_tree:
                     # write a manifest for each directory
                     manifest_path = os.path.join(dirpath, write)
-                    if (dirnames or filenames) and not (overwrite and os.path.exists(manifest)):
+                    if (dirnames or filenames) and should_write(manifest)):
                         with file(manifest_path, 'w') as manifest:
                             for dirname in dirnames:
 
@@ -913,7 +928,7 @@ class ManifestParser(object):
                     # normalize paths
                     filenames = [os.path.join(dirpath, filename)
                                  for filename in filenames]
-                    if relative_to:
+                    if not absolute and relative_to:
                         filenames = [relpath(filename, relative_to)
                                      for filename in filenames]
 
