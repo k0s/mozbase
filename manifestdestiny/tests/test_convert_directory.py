@@ -17,13 +17,12 @@ here = os.path.dirname(os.path.abspath(__file__))
 class TestDirectoryConversion(unittest.TestCase):
     """test conversion of a directory tree to a manifest structure"""
 
-    files = ('foo', 'bar', 'fleem')
-
     def create_stub(self):
         """stub out a directory with files in it"""
 
+        files = ('foo', 'bar', 'fleem')
         directory = tempfile.mkdtemp()
-        for i in self.files:
+        for i in files:
             file(os.path.join(directory, i), 'w').write(i)
         subdir = os.path.join(directory, 'subdir')
         os.mkdir(subdir)
