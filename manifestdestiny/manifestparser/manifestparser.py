@@ -845,7 +845,8 @@ class ManifestParser(object):
         directory_contents = FilteredDirectoryContents(pattern=pattern, ignore=ignore)
 
         # walk the directories, generating manifests
-        for directory in directories:
+        for index, directory in enumerate(directories):
+
             for dirpath, dirnames, filenames in os.walk(directory):
 
                 # get the directory contents from the caching object
@@ -855,9 +856,9 @@ class ManifestParser(object):
                 dirnames[:] = sorted(_dirnames)
 
                 # write a manifest for each directory
-                if write:
+                if write and in_tree:
                     manifest = os.path.join(dirpath, write)
-                    if (dirnames or filenames) and (not overwrite and not os.path.exists(manifest)):
+                    if (dirnames or filenames) and not (overwrite and os.path.exists(manifest)):
                         with file(manifest, 'w') as manifest:
                             for dirname in dirnames:
                                 # TODO: if dirname doesn't have a manifest in it,
