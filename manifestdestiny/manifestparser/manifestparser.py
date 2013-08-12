@@ -775,8 +775,8 @@ class ManifestParser(object):
                     pattern = set()
                 if isinstance(pattern, basestring):
                     pattern = [pattern]
-                    self.patterns = pattern
-                    self.ignore = set(ignore)
+                self.patterns = pattern
+                self.ignore = set(ignore)
 
                 # cache of (dirnames, filenames) keyed on directory real path
                 # assumes volume is frozen throughout scope
