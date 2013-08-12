@@ -433,8 +433,8 @@ class ManifestParser(object):
     def read(self, *filenames, **defaults):
 
         # ensure all files exist
-        missing = [ filename for filename in filenames
-                    if isinstance(filename, string) and not os.path.exists(filename) ]
+        missing = [filename for filename in filenames
+                   if isinstance(filename, string) and not os.path.exists(filename) ]
         if missing:
             raise IOError('Missing files: %s' % ', '.join(missing))
 
