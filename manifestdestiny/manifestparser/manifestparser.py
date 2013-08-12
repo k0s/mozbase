@@ -644,7 +644,8 @@ class ManifestParser(object):
     def __str__(self):
         fp = StringIO()
         self.write(fp=fp)
-        return fp.getvalue()
+        value = fp.getvalue()
+        return value
 
     def copy(self, directory, rootdir=None, *tags, **kwargs):
         """
