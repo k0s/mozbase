@@ -44,7 +44,7 @@ class TestDirectoryConversion(unittest.TestCase):
             # Make a manifest for it
             manifest = convert([stub])
             self.assertEqual(str(manifest),
-                         """[%(stub)s/bar]
+"""[%(stub)s/bar]
 
 [%(stub)s/fleem]
 
