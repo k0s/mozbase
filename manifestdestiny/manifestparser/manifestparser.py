@@ -789,6 +789,8 @@ class ManifestParser(object):
         else:
             # return in-memory buffer
             absolute = True
+            if relative_to:
+                absolute=False
             write = StringIO()
             manifests = write
 
@@ -907,6 +909,9 @@ class ManifestParser(object):
                     # normalize paths
                     filenames = [os.path.join(dirpath, filename)
                                  for filename in filenames]
+                    if relative_to:
+                        filenames = [relpath(filename, relative_to)
+                                     for filename in filenames]
 
                     # write to manifest
                     print >> write, '\n'.join(['[%s]' % (filename)
