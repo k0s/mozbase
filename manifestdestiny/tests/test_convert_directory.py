@@ -42,8 +42,7 @@ class TestDirectoryConversion(unittest.TestCase):
             self.assertTrue(os.path.exists(stub) and os.path.isdir(stub))
 
             # Make a manifest for it:
-            fp = StringIO()
-            self.assertEqual(convert([stub]).write(fp=fp),
+            self.assertEqual(str(convert([stub])),
                          """[%(stub)s/bar]
 [%(stub)s/fleem]
 [%(stub)s/foo]
