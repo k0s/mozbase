@@ -17,35 +17,47 @@ here = os.path.dirname(os.path.abspath(__file__))
 class TestDirectoryConversion(unittest.TestCase):
     """test conversion of a directory tree to a manifest structure"""
 
+    files = ('foo', 'bar', 'fleem')
+
+    def create_stub(self):
+        """stub out a directory with files in it"""
+
+        directory = tempfile.mkdtemp()
+        for i in self.files:
+            file(os.path.join(directory, i), 'w').write(i)
+        subdir = os.path.join(directory, 'subdir')
+        os.mkdir(subdir)
+        file(os.path.join(subdir, 'subfile'), 'w').write('baz')
+        return directory
+
     def test_directory_to_manifest(self):
         """
         Test our ability to convert a static directory structure to a
         manifest.
         """
 
-        # First, stub out a directory with files in it::
-        files = ('foo', 'bar', 'fleem')
-        def create_stub():
-            directory = tempfile.mkdtemp()
-            for i in files:
-                file(os.path.join(directory, i), 'w').write(i)
-            subdir = os.path.join(directory, 'subdir')
-            os.mkdir(subdir)
-            file(os.path.join(subdir, 'subfile'), 'w').write('baz')
-            return directory
-        stub = create_stub()
-        self.assertTrue(os.path.exists(stub) and os.path.isdir(stub))
+        # create a stub directory
+        stub = self.create_stub()
+        try:
+            self.assertTrue(os.path.exists(stub) and os.path.isdir(stub))
 
-        # Make a manifest for it:
-        self.assertEqual(convert([stub]),
+            # Make a manifest for it:
+            self.assertEqual(convert([stub]),
                          """[%(stub)s/bar]
 [%(stub)s/fleem]
 [%(stub)s/foo]
 [%(stub)s/subdir/subfile]""" % dict(stub=stub))
-        shutil.rmtree(stub) # cleanup
+        except:
+            raise
+        finally:
+            shutil.rmtree(stub) # cleanup
 
-        # Now do the same thing but keep the manifests in place:
-        stub = create_stub()
+    def test_convert_directory_manifests_in_place(self):
+        """
+        keep the manifests in place
+        """
+
+        stub = self.create_stub()
         try:
             convert([stub], write='manifest.ini')
             self.assertEqual(sorted(os.listdir(stub)),
@@ -58,11 +70,15 @@ class TestDirectoryConversion(unittest.TestCase):
             parser.read(os.path.join(stub, 'subdir', 'manifest.ini'))
             self.assertEqual(len(parser.tests), 1)
             self.assertEqual(parser.tests[0]['name'], 'subfile')
+        except:
+            raise
         finally:
             shutil.rmtree(stub)
 
-        # test manifest ignore
-        stub = create_stub()
+    def test_manifest_ignore(self):
+        """test manifest `ignore` parameter for ignoring directories"""
+
+        stub = self.create_stub()
         try:
             convert([stub], write='manifest.ini', ignore=('subdir',))
             parser = ManifestParser()
@@ -71,8 +87,11 @@ class TestDirectoryConversion(unittest.TestCase):
                              ['bar', 'fleem', 'foo'])
             parser = ManifestParser()
             self.assertFalse(os.path.exists(os.path.join(stub, 'subdir', 'manifest.ini')))
+        except:
+            raise
         finally:
             shutil.rmtree(stub)
+
 
 if __name__ == '__main__':
     unittest.main()
