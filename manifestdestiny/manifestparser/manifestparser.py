@@ -22,6 +22,7 @@ from optparse import OptionParser
 from StringIO import StringIO
 
 relpath = os.path.relpath
+string = (basestring,)
 
 # expr.py
 # from:
@@ -271,15 +272,13 @@ def read_ini(fp, variables=None, default='DEFAULT',
     - strict : whether to be strict about parsing
     """
 
-    if variables is None:
-        variables = {}
-
-    if isinstance(fp, basestring):
-        fp = file(fp)
-
+    # variables
+    variables = variables or {}
     sections = []
     key = value = None
-    section_names = set([])
+    section_names = set()
+    if isinstance(fp, basestring):
+        fp = file(fp)
 
     # read the lines
     for line in fp.readlines():
@@ -429,7 +428,7 @@ class ManifestParser(object):
 
         # ensure all files exist
         missing = [ filename for filename in filenames
-                    if not os.path.exists(filename) ]
+                    if isinstance(filename, string) and not os.path.exists(filename) ]
         if missing:
             raise IOError('Missing files: %s' % ', '.join(missing))
 
