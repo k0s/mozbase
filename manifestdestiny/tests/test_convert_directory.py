@@ -45,9 +45,14 @@ class TestDirectoryConversion(unittest.TestCase):
             manifest = convert([stub])
             self.assertEqual(str(manifest),
                          """[%(stub)s/bar]
+
 [%(stub)s/fleem]
+
 [%(stub)s/foo]
-[%(stub)s/subdir/subfile]""" % dict(stub=stub))
+
+[%(stub)s/subdir/subfile]
+
+""" % dict(stub=stub))
         except:
             raise
         finally:
