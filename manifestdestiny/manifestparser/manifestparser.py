@@ -719,8 +719,21 @@ class ManifestParser(object):
         - write : filename of manifests to write
         - overwrite : whether to overwrite existing files of given name
 
-        `write` may be specified to choose relative v absolute paths;
-        if `write` is relative path and directories are descendents,
+        `write` may be specified to choose relative v absolute paths:
+        - if `write` is a filename (sans `os.path.sep`), then a file of name
+          `write` will be written in each of `directories`
+        - if `write` is relative path and directories are descendents,
+          paths should be relative to this path
+        - if `write` is an absolute path or directories are not
+          descendents, path should be absolute.
+        While this puts higher complexity on `write`, it is not
+        ambiguous:  pass (e.g.) './manifest.ini' v 'manifest.ini'
+        if relative paths to the current directory is desired,
+        or (e.g.) `os.path.abspath('manifest.ini')` if absolute
+        paths are desired.
+        """
+    # - should be able to choose relative v absolute paths;
+    #   if `write` is relative path and directories are descendents,
     #   paths should be relative;
     #   if `write` is an absolute path or directories are not
     #   descendents, path should be absolute.
@@ -729,8 +742,12 @@ class ManifestParser(object):
     #   if relative paths to the current directory is desired,
     #   or (e.g.) `os.path.abspath('manifest.ini')` if absolute
     #   paths are desired.
-        
-        """
+    #   An override could be introduced, but this mostly does the right
+    #   thing.
+    #
+    # - write could take a file-like object; in this case,
+    #   paths will be absolute
+
 
 
 class TestManifest(ManifestParser):
@@ -815,23 +832,6 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
     """
     """
 
-    # TODO:
-
-    # - should be able to choose relative v absolute paths;
-    #   if `write` is relative path and directories are descendents,
-    #   paths should be relative;
-    #   if `write` is an absolute path or directories are not
-    #   descendents, path should be absolute.
-    #   While this puts higher complexity on `write`, it is not
-    #   ambiguous:  pass (e.g.) './manifest.ini' v 'manifest.ini'
-    #   if relative paths to the current directory is desired,
-    #   or (e.g.) `os.path.abspath('manifest.ini')` if absolute
-    #   paths are desired.
-    #   An override could be introduced, but this mostly does the right
-    #   thing.
-    #
-    # - write could take a file-like object; in this case,
-    #   paths will be absolute
 
     if write and os.path.sep in write:
         raise AssertionError("`write` should specify filename only, not relative or absolute path")
