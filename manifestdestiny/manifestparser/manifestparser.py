@@ -743,17 +743,23 @@ class ManifestParser(object):
 
         # determine output
         string = (basestring,)
-        if write and isinstance(write, string):
-            if relative_to:
-                absolute = False
-                raise NotImplementedError
+        if write:
+            if isinstance(write, string):
+                if relative_to:
+                    absolute = False
+                    raise NotImplementedError
+                else:
+                    if os.path.sep in write:
+                        raise AssertionError("`write` should specify filename only, not relative or absolute path")
+                    absolute = False
             else:
-                if os.path.sep in write:
-                    raise AssertionError("`write` should specify filename only, not relative or absolute path")
-                absolute = False
+                # write is a file-like object
+                raise NotImplementedError
         else:
             absolute = True
 
+        # manifests to return
+        manifest_files = []
 
         class FilteredDirectoryContents(object):
             """class to filter directory contents"""
