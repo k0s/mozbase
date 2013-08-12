@@ -875,6 +875,7 @@ class ManifestParser(object):
 
 convert = ManifestParser.from_directories
 
+
 class TestManifest(ManifestParser):
     """
     apply logic to manifests;  this is your integration layer :)
