@@ -641,6 +641,11 @@ class ManifestParser(object):
                 print >> fp, '%s = %s' % (key, test[key])
             print >> fp
 
+    def __str__(self):
+        fp = StringIO()
+        self.write(fp=fp)
+        return fp.getvalue()
+
     def copy(self, directory, rootdir=None, *tags, **kwargs):
         """
         copy the manifests and associated tests
