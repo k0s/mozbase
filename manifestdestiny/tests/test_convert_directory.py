@@ -91,8 +91,25 @@ class TestDirectoryConversion(unittest.TestCase):
             parser.read(os.path.join(stub, 'manifest.ini'))
             self.assertEqual([i['name'] for i in parser.tests],
                              ['bar', 'fleem', 'foo'])
-            parser = ManifestParser()
             self.assertFalse(os.path.exists(os.path.join(stub, 'subdir', 'manifest.ini')))
+        except:
+            raise
+        finally:
+            shutil.rmtree(stub)
+
+    def test_pattern(self):
+        """test directory -> manifest with a file pattern"""
+
+        stub = self.create_stub()
+        try:
+            parser = convert([stub], pattern='f*', relative_to=stub)
+            self.assertEqual([i['name'] for i in parser.tests],
+                             ['fleem', 'foo'])
+
+            # test multiple patterns
+            parser = convert([stub], pattern=('f*', 's*'), relative_to=stub)
+            self.assertEqual([i['name'] for i in parser.tests],
+                             ['fleem', 'foo', 'subdir/subfile'])
         except:
             raise
         finally:

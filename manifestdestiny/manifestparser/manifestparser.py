@@ -864,12 +864,11 @@ class ManifestParser(object):
                             if dirname not in self.ignore]
                 filenames = set(filenames)
                 # we use set functionality to filter filenames
-                matches = set()
                 if self.patterns:
-                    for pattern in self.patterns:
-                        filtered = fnmatch.filter(filenames, pattern)
-                        foo = matches.update(filtered)
-                        # TODO: remove from filenames
+                    matches = set()
+                    matches.update(*[fnmatch.filter(filenames, pattern)
+                                     for pattern in self.patterns])
+                    filenames = matches
 
                 if sort is not None:
                     # sort dirnames, filenames
