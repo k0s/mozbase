@@ -778,9 +778,9 @@ class ManifestParser(object):
                     self.patterns = pattern
                     self.ignore = set(ignore)
 
-                    # cache of (dirnames, filenames) keyed on directory real path
-                    # assumes volume is frozen throughout scope
-                    self._cache = cache or {}
+                # cache of (dirnames, filenames) keyed on directory real path
+                # assumes volume is frozen throughout scope
+                self._cache = cache or {}
 
             def __call__(self, directory):
                 """returns 2-tuple: dirnames, filenames"""
@@ -824,7 +824,7 @@ class ManifestParser(object):
                         assert os.path.isfile(path)
                         filenames.append(item)
 
-                # filter contents
+                # filter contents;
                 # this could be done in situ re the above for loop
                 # but it is really disparate in intent
                 # and could conceivably go to a separate method
