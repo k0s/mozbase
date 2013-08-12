@@ -873,9 +873,12 @@ class ManifestParser(object):
                         if index <= len(manifests):
                             manifests.append(manifest_path)
 
-        if not isinstance(write, list):
-            # 
-        import pdb; pdb.set_trace()
+        if not isinstance(manifests, list):
+            # manifests/write is a file-like object
+            # rewind buffer
+            manifests.flush()
+            manifests.seek(0)
+            import pdb; pdb.set_trace()
 
         # make a ManifestParser instance
         return cls(manifests=manifests)
