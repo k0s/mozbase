@@ -761,13 +761,13 @@ class ManifestParser(object):
                     manifests = []
             else:
                 # write is a file-like object
-                manifests = [write]
+                manifests = write
                 raise NotImplementedError
         else:
             # return in-memory buffer
             absolute = True
             write = StringIO()
-            manifests = [write]
+            manifests = write
 
 
         class FilteredDirectoryContents(object):
@@ -860,9 +860,9 @@ class ManifestParser(object):
 
                 # write a manifest for each directory
                 if write and in_tree:
-                    manifest = os.path.join(dirpath, write)
+                    manifest_path = os.path.join(dirpath, write)
                     if (dirnames or filenames) and not (overwrite and os.path.exists(manifest)):
-                        with file(manifest, 'w') as manifest:
+                        with file(manifest_path, 'w') as manifest:
                             for dirname in dirnames:
 
                                 print >> manifest, '[include:%s]' % os.path.join(dirname, write)
@@ -871,7 +871,10 @@ class ManifestParser(object):
 
                         # add to list of manifests
                         if index <= len(manifests):
-                            manifests.append(manifest)
+                            manifests.append(manifest_path)
+
+        # rewind buffers
+        import pdb; pdb.set_trace()
 
         # make a ManifestParser instance
         return cls(manifests=manifests)
