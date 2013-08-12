@@ -112,7 +112,7 @@ class TestDirectoryConversion(unittest.TestCase):
         # otherwise empty directory with a manifest file
         newtempdir = tempfile.mkdtemp()
         manifest_file = os.path.join(newtempdir, 'manifest.ini')
-        manifest_contents = str(convert([tempdir]))
+        manifest_contents = str(convert([tempdir], relative_to=tempdir))
         manifest_file = os.path.join(newtempdir, 'manifest.ini')
         with file(manifest_file, 'w') as f:
                 f.write(manifest_contents)
