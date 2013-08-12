@@ -778,68 +778,68 @@ class ManifestParser(object):
                     self.patterns = pattern
                     self.ignore = set(ignore)
 
-             # cache of (dirnames, filenames) keyed on directory real path
-             # assumes volume is frozen throughout scope
-             self._cache = cache or {}
+                    # cache of (dirnames, filenames) keyed on directory real path
+                    # assumes volume is frozen throughout scope
+                    self._cache = cache or {}
 
-         def __call__(self, directory):
-             """returns 2-tuple: dirnames, filenames"""
+            def __call__(self, directory):
+                """returns 2-tuple: dirnames, filenames"""
 
-             directory = os.path.realpath(directory)
-             if directory not in self._cache:
-                 dirnames, filenames = self.contents(directory)
+                directory = os.path.realpath(directory)
+                if directory not in self._cache:
+                    dirnames, filenames = self.contents(directory)
 
-                 # filter out directories without progeny
-                 # XXX recursive: should keep track of seen directories
-                 dirnames = [ dirname for dirname in dirnames
-                              if not self.empty(os.path.join(directory, dirname)) ]
+                    # filter out directories without progeny
+                    # XXX recursive: should keep track of seen directories
+                    dirnames = [ dirname for dirname in dirnames
+                                 if not self.empty(os.path.join(directory, dirname)) ]
 
-                 self._cache[directory] = (tuple(dirnames), filenames)
+                    self._cache[directory] = (tuple(dirnames), filenames)
 
-             # return cached values
-             return self._cache[directory]
+                # return cached values
+                return self._cache[directory]
 
-         def empty(self, directory):
-             """
-            returns if a directory and its descendents are empty
-            """
-             return self(directory) == ((), ())
+            def empty(self, directory):
+                """
+                returns if a directory and its descendents are empty
+                """
+                return self(directory) == ((), ())
 
-         def contents(self, directory, sort=None):
-             """
-            return directory contents as (dirnames, filenames)
-            with `ignore` and `pattern` applied
-            """
+            def contents(self, directory, sort=None):
+                """
+                return directory contents as (dirnames, filenames)
+                with `ignore` and `pattern` applied
+                """
 
-             # split directories and files
-             dirnames = []
-             filenames = []
-             for item in os.listdir(directory):
-                 path = os.path.join(directory, item)
-                 if os.path.isdir(path):
-                     dirnames.append(item)
-                 else:
-                     # XXX not sure what to do if neither a file or directory
-                     # (if anything)
-                     assert os.path.isfile(path)
-                     filenames.append(item)
+                # split directories and files
+                dirnames = []
+                filenames = []
+                for item in os.listdir(directory):
+                    path = os.path.join(directory, item)
+                    if os.path.isdir(path):
+                        dirnames.append(item)
+                    else:
+                        # XXX not sure what to do if neither a file or directory
+                        # (if anything)
+                        assert os.path.isfile(path)
+                        filenames.append(item)
 
-             # filter contents
-             # this could be done in situ re the above for loop
-             # but it is really disparate in intent
-             # and could conceivably go to a separate method
-             dirnames = [dirname for dirname in dirnames
-                         if dirname not in self.ignore]
-             filenames = set(filenames)
-             # we use set functionality to filter filenames
-             matches = set()
-             if self.patterns:
-                 for pattern in self.patterns:
-                     filtered = fnmatch.filter(filenames, pattern)
-                     foo = matches.update(filtered)
-                     # TODO: remove from filenames
+                # filter contents
+                # this could be done in situ re the above for loop
+                # but it is really disparate in intent
+                # and could conceivably go to a separate method
+                dirnames = [dirname for dirname in dirnames
+                            if dirname not in self.ignore]
+                filenames = set(filenames)
+                # we use set functionality to filter filenames
+                matches = set()
+                if self.patterns:
+                    for pattern in self.patterns:
+                        filtered = fnmatch.filter(filenames, pattern)
+                        foo = matches.update(filtered)
+                        # TODO: remove from filenames
 
-             return (tuple(dirnames), tuple(filenames))
+                return (tuple(dirnames), tuple(filenames))
 
         # make a filtered directory object
         directory_contents = FilteredDirectoryContents(pattern=pattern, ignore=ignore)
