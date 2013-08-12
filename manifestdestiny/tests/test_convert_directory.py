@@ -109,16 +109,21 @@ class TestDirectoryConversion(unittest.TestCase):
         for i in range(10):
             file(os.path.join(tempdir, str(i)), 'w').write(str(i))
 
-        # First, make a manifest:
-        manifest = convert([tempdir])
+        # otherwise empty directory with a manifest file
         newtempdir = tempfile.mkdtemp()
         manifest_file = os.path.join(newtempdir, 'manifest.ini')
-        manifest.write(manifest_file)
+        manifest_contents = str(convert([tempdir]))
+        manifest_file = os.path.join(newtempdir, 'manifest.ini')
+        with file(manifest_file, 'w') as f:
+                f.write(manifest_contents)
+
+        # get the manifest
+        manifest = ManifestParser(manifests=(manifest_file,))
 
         # All of the tests are initially missing:
         paths = [str(i) for i in range(10)]
         self.assertEqual([i['name'] for i in manifest.missing()],
-                        paths)
+                         paths)
 
         # But then we copy one over:
         self.assertEqual(manifest.get('name', name='1'), ['1'])
