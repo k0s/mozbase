@@ -239,6 +239,9 @@ def parse(text, **values):
     """
     return ExpressionParser(text, values).parse()
 
+
+### path normalization
+
 def normalize_path(path):
     """normalize a relative path"""
     if sys.platform.startswith('win'):
@@ -250,6 +253,9 @@ def denormalize_path(path):
     if sys.platform.startswith('win'):
         return path.replace(os.path.sep, '/')
     return path
+
+
+### .ini reader
 
 def read_ini(fp, variables=None, default='DEFAULT',
              comments=';#', separators=('=', ':'),
@@ -704,6 +710,28 @@ class ManifestParser(object):
                 destination = os.path.join(rootdir, _relpath)
                 shutil.copy(source, destination)
 
+    @classmethod
+    def directories_to_manifest(cls, directories, pattern=None, ignore=(), write=None, overwrite=False):):
+        """
+        convert directories to a simple manifest; returns ManifestParser instance
+        - pattern : shell pattern (glob) or patterns of filenames to match
+        - ignore : directory names to ignore
+        - write : filename of manifests to write
+        - overwrite : whether to overwrite existing files of given name
+
+        `write` may be specified to choose relative v absolute paths;
+        if `write` is relative path and directories are descendents,
+    #   paths should be relative;
+    #   if `write` is an absolute path or directories are not
+    #   descendents, path should be absolute.
+    #   While this puts higher complexity on `write`, it is not
+    #   ambiguous:  pass (e.g.) './manifest.ini' v 'manifest.ini'
+    #   if relative paths to the current directory is desired,
+    #   or (e.g.) `os.path.abspath('manifest.ini')` if absolute
+    #   paths are desired.
+        
+        """
+
 
 class TestManifest(ManifestParser):
     """
@@ -785,19 +813,10 @@ class TestManifest(ManifestParser):
 
 def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
     """
-    convert directories to a simple manifest
-    - pattern : shell pattern (glob) or patterns of filenames to match
-    - ignore : directory names to ignore
-    - write : filename of manifests to write
-    - overwrite : whether to overwrite existing files of given name
     """
 
     # TODO:
-    # - should be method of ManifestParser:
-    #   @classmethod
-    #   def directory_to_manifest(cls):
-    #     "returns ManifestParser object"
-    #
+
     # - should be able to choose relative v absolute paths;
     #   if `write` is relative path and directories are descendents,
     #   paths should be relative;
@@ -813,14 +832,11 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
     #
     # - write could take a file-like object; in this case,
     #   paths will be absolute
-    #
-    # - more tests
 
     if write and os.path.sep in write:
         raise AssertionError("`write` should specify filename only, not relative or absolute path")
 
     retval = []
-    # include = [] # XXX unused; could be used for relative paths
 
     class FilteredDirectoryContents(object):
 

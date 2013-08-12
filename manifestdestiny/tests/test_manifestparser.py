@@ -90,7 +90,7 @@ class TestManifestparser(unittest.TestCase):
         self.assertEqual(parser.get(name='flowers')[0]['yellow'],
                          'submarine')
 
-        # You can query multiple times if you need to::
+        # You can query multiple times if you need to:
         flowers = parser.get(foo='bar')
         self.assertEqual(len(flowers), 2)
 
@@ -98,7 +98,7 @@ class TestManifestparser(unittest.TestCase):
         self.assertEqual(parser.get('name', inverse=True, tags=['red']),
                          ['crash-handling', 'fleem'])
 
-        # All of the included tests actually exist::
+        # All of the included tests actually exist:
         self.assertEqual([i['name'] for i in parser.missing()], [])
 
         # Write the output to a manifest:
