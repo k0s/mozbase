@@ -840,7 +840,6 @@ def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
             """returns 2-tuple: dirnames, filenames"""
 
             directory = os.path.realpath(directory)
-            print directory
             if directory not in self._cache:
                 dirnames, filenames = self.contents(directory)
 
