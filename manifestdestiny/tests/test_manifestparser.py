@@ -107,9 +107,6 @@ class TestManifestparser(unittest.TestCase):
         self.assertEqual(buffer.getvalue().strip(),
                          '[DEFAULT]\nfoo = bar\n\n[fleem]\n\n[include/flowers]\nblue = ocean\nred = roses\nyellow = submarine')
 
-
-
-
     def test_copy(self):
         """Test our ability to copy a set of manifests"""
 
@@ -126,51 +123,6 @@ class TestManifestparser(unittest.TestCase):
         to_manifest = ManifestParser(manifests=(to_manifest,))
         self.assertEqual(to_manifest.get('name'), from_manifest.get('name'))
         shutil.rmtree(tempdir)
-
-
-    # def test_update(self):
-    #     """
-    #     Test our ability to update tests from a manifest and a directory of
-    #     files
-    #     """
-
-    #     # boilerplate
-    #     tempdir = tempfile.mkdtemp()
-    #     for i in range(10):
-    #         file(os.path.join(tempdir, str(i)), 'w').write(str(i))
-
-    #     # First, make a manifest:
-    #     manifest = convert([tempdir])
-    #     newtempdir = tempfile.mkdtemp()
-    #     paths = [os.path.join(newtempdir, str(i)) for i in range(10)]
-    #     manifest_file = os.path.join(newtempdir, 'manifest.ini')
-    #     file(manifest_file,'w').write(manifest)
-    #     manifest = ManifestParser(manifests=(manifest_file,))
-    #     import pdb; pdb.set_trace()
-    #     self.assertEqual(manifest.get('path'),
-    #                      paths)
-
-    #     # All of the tests are initially missing:
-    #     self.assertEqual([i['name'] for i in manifest.missing()],
-    #                      paths)
-
-    #     # But then we copy one over:
-    #     self.assertEqual(manifest.get('name', name='1'), ['1'])
-    #     manifest.update(tempdir, name='1')
-    #     self.assertEqual(sorted(os.listdir(newtempdir)),
-    #                      ['1', 'manifest.ini'])
-
-    #     # Update that one file and copy all the "tests":
-    #     file(os.path.join(tempdir, '1'), 'w').write('secret door')
-    #     manifest.update(tempdir)
-    #     self.assertEqual(sorted(os.listdir(newtempdir)),
-    #                      ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'manifest.ini'])
-    #     self.assertEqual(file(os.path.join(newtempdir, '1')).read().strip(),
-    #                      'secret door')
-
-    #     # clean up:
-    #     shutil.rmtree(tempdir)
-    #     shutil.rmtree(newtempdir)
 
     def test_path_override(self):
         """You can override the path in the section too.
