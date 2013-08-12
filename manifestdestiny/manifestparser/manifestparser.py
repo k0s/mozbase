@@ -777,6 +777,8 @@ class ManifestParser(object):
         class FilteredDirectoryContents(object):
             """class to filter directory contents"""
 
+            sort = sorted
+
             def __init__(self, pattern=pattern, ignore=ignore, cache=None):
                 if pattern is None:
                     pattern = set()
@@ -818,6 +820,9 @@ class ManifestParser(object):
                 with `ignore` and `pattern` applied
                 """
 
+                if sort is None:
+                    sort = self.sort
+
                 # split directories and files
                 dirnames = []
                 filenames = []
@@ -846,6 +851,11 @@ class ManifestParser(object):
                         foo = matches.update(filtered)
                         # TODO: remove from filenames
 
+                if sort is not None:
+                    # sort dirnames, filenames
+                    dirnames = sort(dirnames)
+                    filenames = sort(filenames)
+
                 return (tuple(dirnames), tuple(filenames))
 
         # make a filtered directory object
@@ -858,9 +868,8 @@ class ManifestParser(object):
 
                 # get the directory contents from the caching object
                 _dirnames, filenames = directory_contents(dirpath)
-                filenames = sorted(filenames)
                 # filter out directory names
-                dirnames[:] = sorted(_dirnames)
+                dirnames[:] = _dirnames
 
                 # write a manifest for each directory
                 if write and in_tree:
