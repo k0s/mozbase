@@ -116,6 +116,7 @@ class TestDirectoryConversion(unittest.TestCase):
         manifest.write(manifest_file)
 
         # All of the tests are initially missing:
+        paths = [str(i) for i in range(10)]
         self.assertEqual([i['name'] for i in manifest.missing()],
                         paths)
 

@@ -592,6 +592,12 @@ class ManifestParser(object):
         locals (if given) will be written per test
         """
 
+        # open file if `fp` given as string
+        close = False
+        if isinstance(fp, string):
+            fp = file(fp, 'w')
+            close = True
+
         # root directory
         if rootdir is None:
             rootdir = self.rootdir
@@ -644,6 +650,10 @@ class ManifestParser(object):
                     continue
                 print >> fp, '%s = %s' % (key, test[key])
             print >> fp
+
+        if close:
+            # close the created file
+            fp.close()
 
     def __str__(self):
         fp = StringIO()
