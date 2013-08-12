@@ -142,15 +142,17 @@ class TestManifestparser(unittest.TestCase):
         # First, make a manifest:
         manifest = convert([tempdir])
         newtempdir = tempfile.mkdtemp()
+        paths = [os.path.join(newtempdir, str(i)) for i in range(10)]
         manifest_file = os.path.join(newtempdir, 'manifest.ini')
         file(manifest_file,'w').write(manifest)
         manifest = ManifestParser(manifests=(manifest_file,))
-        self.assertEqual(manifest.get('name'),
-                         [str(i) for i in range(10)])
+        import pdb; pdb.set_trace()
+        self.assertEqual(manifest.get('path'),
+                         paths)
 
         # All of the tests are initially missing:
         self.assertEqual([i['name'] for i in manifest.missing()],
-                         [str(i) for i in range(10)])
+                         paths)
 
         # But then we copy one over:
         self.assertEqual(manifest.get('name', name='1'), ['1'])
