@@ -360,8 +360,6 @@ def read_ini(fp, variables=None, default='DEFAULT',
 class ManifestParser(object):
     """read .ini manifests"""
 
-    ### methods for reading manifests
-
     def __init__(self, manifests=(), defaults=None, strict=True):
         self._defaults = defaults or {}
         self.tests = []
@@ -373,6 +371,8 @@ class ManifestParser(object):
 
     def getRelativeRoot(self, root):
         return root
+
+    ### methods for reading manifests
 
     def _read(self, root, filename, defaults):
 
@@ -446,6 +446,7 @@ class ManifestParser(object):
                 self.rootdir = here
 
             self._read(here, filename, defaults)
+
 
     ### methods for querying manifests
 
@@ -524,6 +525,7 @@ class ManifestParser(object):
     def paths(self):
         return [i['path'] for i in self.tests]
 
+
     ### methods for auditing
 
     def missing(self, tests=None):
@@ -564,6 +566,7 @@ class ManifestParser(object):
         missing_from_filesystem = paths.difference(files)
         missing_from_manifest = files.difference(paths)
         return (missing_from_filesystem, missing_from_manifest)
+
 
     ### methods for output
 
@@ -711,13 +714,15 @@ class ManifestParser(object):
                 shutil.copy(source, destination)
 
     @classmethod
-    def directories_to_manifest(cls, directories, pattern=None, ignore=(), write=None, overwrite=False):):
+    def from_directories(cls, directories, pattern=None, ignore=(), write=None, overwrite=False, relative_to=None):
         """
         convert directories to a simple manifest; returns ManifestParser instance
         - pattern : shell pattern (glob) or patterns of filenames to match
         - ignore : directory names to ignore
         - write : filename of manifests to write
         - overwrite : whether to overwrite existing files of given name
+        - relative_to : write paths relative to this directory;
+          overrides what is specified by `write`
 
         `write` may be specified to choose relative v absolute paths:
         - if `write` is a filename (sans `os.path.sep`), then a file of name
@@ -733,9 +738,135 @@ class ManifestParser(object):
         paths are desired.
 
         Write can also take a file-like object; in this case,
-        paths will be governed by 
+        paths will be governed by `relative_to`.
         """
 
+        # determine output
+        string = (basestring,)
+        if write and isinstance(write, string):
+            if relative_to:
+                absolute = False
+                raise NotImplementedError
+            else:
+                if os.path.sep in write:
+                    raise AssertionError("`write` should specify filename only, not relative or absolute path")
+                absolute = False
+        else:
+            absolute = True
+
+
+        class FilteredDirectoryContents(object):
+            """class to filter directory contents"""
+
+            def __init__(self, pattern=pattern, ignore=ignore, cache=None):
+                if pattern is None:
+                    pattern = set()
+                if isinstance(pattern, basestring):
+                    pattern = [pattern]
+                    self.patterns = pattern
+                    self.ignore = set(ignore)
+
+             # cache of (dirnames, filenames) keyed on directory real path
+             # assumes volume is frozen throughout scope
+             self._cache = cache or {}
+
+         def __call__(self, directory):
+             """returns 2-tuple: dirnames, filenames"""
+
+             directory = os.path.realpath(directory)
+             if directory not in self._cache:
+                 dirnames, filenames = self.contents(directory)
+
+                 # filter out directories without progeny
+                 # XXX recursive: should keep track of seen directories
+                 dirnames = [ dirname for dirname in dirnames
+                              if not self.empty(os.path.join(directory, dirname)) ]
+
+                 self._cache[directory] = (tuple(dirnames), filenames)
+
+             # return cached values
+             return self._cache[directory]
+
+         def empty(self, directory):
+             """
+            returns if a directory and its descendents are empty
+            """
+             return self(directory) == ((), ())
+
+         def contents(self, directory, sort=None):
+             """
+            return directory contents as (dirnames, filenames)
+            with `ignore` and `pattern` applied
+            """
+
+             # split directories and files
+             dirnames = []
+             filenames = []
+             for item in os.listdir(directory):
+                 path = os.path.join(directory, item)
+                 if os.path.isdir(path):
+                     dirnames.append(item)
+                 else:
+                     # XXX not sure what to do if neither a file or directory
+                     # (if anything)
+                     assert os.path.isfile(path)
+                     filenames.append(item)
+
+             # filter contents
+             # this could be done in situ re the above for loop
+             # but it is really disparate in intent
+             # and could conceivably go to a separate method
+             dirnames = [dirname for dirname in dirnames
+                         if dirname not in self.ignore]
+             filenames = set(filenames)
+             # we use set functionality to filter filenames
+             matches = set()
+             if self.patterns:
+                 for pattern in self.patterns:
+                     filtered = fnmatch.filter(filenames, pattern)
+                     foo = matches.update(filtered)
+                     # TODO: remove from filenames
+
+             return (tuple(dirnames), tuple(filenames))
+
+        # make a filtered directory object
+        directory_contents = FilteredDirectoryContents(pattern=pattern, ignore=ignore)
+
+        # walk the directories, generating manifests
+        for directory in directories:
+            for dirpath, dirnames, filenames in os.walk(directory):
+
+                # get the directory contents from the caching object
+                _dirnames, filenames = directory_contents(dirpath)
+                filenames = sorted(filenames)
+                # filter out directory names
+                dirnames[:] = sorted(_dirnames)
+
+                # write a manifest for each directory
+                if write:
+                    manifest = os.path.join(dirpath, write)
+                    if (dirnames or filenames) and (not overwrite and not os.path.exists(manifest)):
+                        with file(manifest, 'w') as manifest:
+                            for dirname in dirnames:
+                                # TODO: if dirname doesn't have a manifest in it,
+                                # then [include:] points to a non-existant file
+                                print >> manifest, '[include:%s]' % os.path.join(dirname, write)
+                                for filename in filenames:
+                                    print >> manifest, '[%s]' % filename
+
+                # add to the list
+                # TODO: delete; return ManifestParser object
+                retval.extend([denormalize_path(os.path.join(dirpath, filename))
+                               for filename in filenames])
+
+        if write:
+            return # the manifests have already been written!
+
+        retval.sort()
+        retval = [('[%s]' % filename) for filename in retval]
+        return '\n'.join(retval)
+
+convert = ManifestParser.from_directories
 
 class TestManifest(ManifestParser):
     """
@@ -812,127 +943,6 @@ class TestManifest(ManifestParser):
     def test_paths(self):
         return [test['path'] for test in self.active_tests()]
 
-
-### utility function(s); probably belongs elsewhere
-
-def convert(directories, pattern=None, ignore=(), write=None, overwrite=False):
-    """
-    """
-
-
-    if write and os.path.sep in write:
-        raise AssertionError("`write` should specify filename only, not relative or absolute path")
-
-    retval = []
-
-    class FilteredDirectoryContents(object):
-
-        def __init__(self, pattern=pattern, ignore=ignore, cache=None):
-            if pattern is None:
-                pattern = set()
-            if isinstance(pattern, basestring):
-                pattern = [pattern]
-            self.patterns = pattern
-            self.ignore = set(ignore)
-
-            # cache of (dirnames, filenames) keyed on directory real path
-            # assumes volume is frozen throughout scope
-            self._cache = cache or {}
-
-        def __call__(self, directory):
-            """returns 2-tuple: dirnames, filenames"""
-
-            directory = os.path.realpath(directory)
-            if directory not in self._cache:
-                dirnames, filenames = self.contents(directory)
-
-                # filter out directories without progeny
-                # XXX recursive: should keep track of seen directories
-                dirnames = [ dirname for dirname in dirnames
-                             if not self.empty(os.path.join(directory, dirname)) ]
-
-                self._cache[directory] = (tuple(dirnames), filenames)
-
-            # return cached values
-            return self._cache[directory]
-
-        def empty(self, directory):
-            """
-            returns if a directory and its descendents are empty
-            """
-            return self(directory) == ((), ())
-
-        def contents(self, directory, sort=None):
-            """
-            return directory contents as (dirnames, filenames)
-            with `ignore` and `pattern` applied
-            """
-
-            # split directories and files
-            dirnames = []
-            filenames = []
-            for item in os.listdir(directory):
-                path = os.path.join(directory, item)
-                if os.path.isdir(path):
-                    dirnames.append(item)
-                else:
-                    # XXX not sure what to do if neither a file or directory
-                    # (if anything)
-                    assert os.path.isfile(path)
-                    filenames.append(item)
-
-            # filter contents
-            # this could be done in situ re the above for loop
-            # but it is really disparate in intent
-            # and could conceivably go to a separate method
-            dirnames = [dirname for dirname in dirnames
-                        if dirname not in self.ignore]
-            filenames = set(filenames)
-            # we use set functionality to filter filenames
-            matches = set()
-            if self.patterns:
-                for pattern in self.patterns:
-                    filtered = fnmatch.filter(filenames, pattern)
-                    foo = matches.update(filtered)
-                    # TODO: remove from filenames
-
-            return (tuple(dirnames), tuple(filenames))
-
-    # make a filtered directory object
-    directory_contents = FilteredDirectoryContents(pattern=pattern, ignore=ignore)
-
-    for directory in directories:
-        for dirpath, dirnames, filenames in os.walk(directory):
-
-            # get the directory contents from the caching object
-            _dirnames, filenames = directory_contents(dirpath)
-            filenames = sorted(filenames)
-            # filter out directory names
-            dirnames[:] = sorted(_dirnames)
-
-            # write a manifest for each directory
-            if write:
-                manifest = os.path.join(dirpath, write)
-                if (dirnames or filenames) and (not overwrite and not os.path.exists(manifest)):
-                    with file(manifest, 'w') as manifest:
-                        for dirname in dirnames:
-                            # TODO: if dirname doesn't have a manifest in it,
-                            # then [include:] points to a non-existant file
-                            print >> manifest, '[include:%s]' % os.path.join(dirname, write)
-                        for filename in filenames:
-                            print >> manifest, '[%s]' % filename
-
-            # add to the list
-            # TODO: delete; return ManifestParser object
-            retval.extend([denormalize_path(os.path.join(dirpath, filename))
-                           for filename in filenames])
-
-    if write:
-        return # the manifests have already been written!
-
-    retval.sort()
-    retval = [('[%s]' % filename) for filename in retval]
-    return '\n'.join(retval)
 
 ### command line attributes
 
