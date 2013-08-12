@@ -916,7 +916,6 @@ class ManifestParser(object):
                     if (dirnames or filenames) and should_write(manifest)):
                         with file(manifest_path, 'w') as manifest:
                             for dirname in dirnames:
-
                                 print >> manifest, '[include:%s]' % os.path.join(dirname, write)
                             for filename in filenames:
                                 print >> manifest, '[%s]' % filename
