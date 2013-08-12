@@ -432,11 +432,15 @@ class ManifestParser(object):
         if missing:
             raise IOError('Missing files: %s' % ', '.join(missing))
 
+        # default variables
+        _defaults = defaults.copy() or self._defaults.copy()
+        _defaults.setdefault('here', None)
+
         # process each file
         for filename in filenames:
 
             # set the per file defaults
-            defaults = defaults.copy() or self._defaults.copy()
+            defaults = _defaults.copy()
             here = os.path.dirname(os.path.abspath(filename))
             defaults['here'] = here
 
