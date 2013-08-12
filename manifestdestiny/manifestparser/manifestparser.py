@@ -441,6 +441,8 @@ class ManifestParser(object):
 
             # set the per file defaults
             defaults = _defaults.copy()
+            if not isinstance(filename, string):
+                import pdb; pdb.set_trace()
             here = os.path.dirname(os.path.abspath(filename))
             defaults['here'] = here
 
@@ -878,7 +880,7 @@ class ManifestParser(object):
             # rewind buffer
             manifests.flush()
             manifests.seek(0)
-            import pdb; pdb.set_trace()
+            manifests = [manifests]
 
         # make a ManifestParser instance
         return cls(manifests=manifests)
