@@ -794,6 +794,8 @@ class ManifestParser(object):
                     if should_write(write):
                         new_manifest_file = write
                         write = file(write, 'w')
+                    else:
+                        return cls(write)
                 else:
                     # manifest in each directory via [include:]
                     in_tree = True
@@ -941,7 +943,7 @@ class ManifestParser(object):
         if new_manifest_file:
             # close new file
             write.close()
-            manifests = [write]
+            manifests = [new_manifest_file]
 
         # make a ManifestParser instance
         return cls(manifests=manifests)
