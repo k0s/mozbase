@@ -782,6 +782,7 @@ class ManifestParser(object):
 
         # determine output
         in_tree = False # whether to output files of name `write` in each directory
+        opened_manifest_file = None # name of opened manifest file
         new_manifest_file = None # name of new manifest file opened
         absolute = True # whether to output absolute path names as names
         if write:
@@ -792,7 +793,10 @@ class ManifestParser(object):
                     if not absolute:
                         relative_to = relative_to or os.path.dirname(os.path.abspath(write))
                     if should_write(write):
-                        new_manifest_file = write
+                        opened_manifest_file = os.path.abspath(write)
+                        if not os.path.exists(write):
+                            new_manifest_file = opened_manifest_file
+                        manifests = [opened_manifest_file]
                         write = file(write, 'w')
                     else:
                         return cls(write)
@@ -922,9 +926,13 @@ class ManifestParser(object):
                         if index <= len(manifests):
                             manifests.append(manifest_path)
                 else:
-                    # normalize paths
+                    # absolute paths
                     filenames = [os.path.join(dirpath, filename)
                                  for filename in filenames]
+                    # ensure new manifest isn't added
+                    filenames = [filename for filename in filenames
+                                 if filename != new_manifest_file]
+                    # normalize paths
                     if not absolute and relative_to:
                         filenames = [relpath(filename, relative_to)
                                      for filename in filenames]
@@ -940,10 +948,9 @@ class ManifestParser(object):
             manifests.seek(0)
             manifests = [manifests]
 
-        if new_manifest_file:
-            # close new file
+        if opened_manifest_file:
+            # close file
             write.close()
-            manifests = [new_manifest_file]
 
         # make a ManifestParser instance
         return cls(manifests=manifests)

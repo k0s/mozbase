@@ -142,7 +142,7 @@ class TestDirectoryConversion(unittest.TestCase):
             files = ['../bar', '../fleem', '../foo', 'subfile']
             subdir = os.path.join(stub, 'subdir')
             os.chdir(subdir)
-            parser = convert([stub], write='manifest.ini')
+            parser = convert([stub], pattern='*[!.]*', write='./manifest.ini')
             self.assertEqual([i['name'] for i in parser.tests],
                              files)
             self.assertTrue(os.path.exists('manifest.ini'))
