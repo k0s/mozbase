@@ -783,36 +783,33 @@ class ManifestParser(object):
         # determine output
         string = (basestring,)
         in_tree = False # whether to output files of name `write` in each directory
-        manifest_file = None
-
+        new manifest_file = False
+        _relative_to = relative_to # cache
+        absolute = True # whether to output absolute path names as names
         if write:
             if isinstance(write, string):
                 # write is a path
-                if relative_to:
-                    absolute = is_root(relative_to)
+                if os.path.sep in write:
+                    absolute = os.path.isabs(write)
+                    if not absolute:
+                        relative_to = relative_to or os.path.dirname(os.path.abspath(write))
+                    if should_write(write):
+                        manifest_file = file(write, 'w')
                 else:
-                    if os.path.sep in write:
-                        if os.path.isabs(write):
-                            absolute = True
-                        else:
-                            absolute = False
-                            relative_to = write
-                        if should_write(write):
-                            write = file(write, 'w')
-                    else:
-                        absolute = False
-                        in_tree = True
-                        manifests = []
+                    # manifest in each directory via [include:]
+                    in_tree = True
+                    manifests = []
             else:
                 # write is a file-like object
                 manifests = write
         else:
             # return in-memory buffer
-            absolute = True
-            if relative_to:
-                absolute = is_root(relative_to)
             write = StringIO()
             manifests = write
+
+        # location specified by relative_to
+        if relative_to:
+            absolute = is_root(relative_to)
 
         class FilteredDirectoryContents(object):
             """class to filter directory contents"""
@@ -913,7 +910,7 @@ class ManifestParser(object):
                 if in_tree:
                     # write a manifest for each directory
                     manifest_path = os.path.join(dirpath, write)
-                    if (dirnames or filenames) and should_write(manifest)):
+                    if (dirnames or filenames) and should_write(manifest_path):
                         with file(manifest_path, 'w') as manifest:
                             for dirname in dirnames:
                                 print >> manifest, '[include:%s]' % os.path.join(dirname, write)
@@ -942,6 +939,8 @@ class ManifestParser(object):
             manifests.seek(0)
             manifests = [manifests]
 
+        
+            
         # make a ManifestParser instance
         return cls(manifests=manifests)
 

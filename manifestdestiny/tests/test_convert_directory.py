@@ -115,10 +115,37 @@ class TestDirectoryConversion(unittest.TestCase):
         finally:
             shutil.rmtree(stub)
 
-    def test_relpath(self);
+    def test_relpath(self):
         """test convert `relative_to` functionality"""
 
-        stub = None
+        oldcwd = os.getcwd()
+        stub = self.create_stub()
+        try:
+            # subdir with in-memory manifest
+            files = ['../bar', '../fleem', '../foo', 'subfile']
+            subdir = os.path.join(stub, 'subdir')
+            os.chdir(subdir)
+            parser = convert([stub], relative_to='.')
+            self.assertEqual([i['name'] for i in parser.tests],
+                             files)
+
+            # subdir via write specification
+            parser = convert([stub], write='manifest.ini')
+            self.assertEqual([i['name'] for i in parser.tests],
+                             files)
+            self.assertTrue(os.path.exists('manifest.ini'))
+            self.assertEqual('\n'.join([line.strip()
+                                        for line in file('manifest.ini').readlines()
+                                        if line.strip()]),
+"""[../bar]
+[../fleem]
+[../foo]
+[subfile]""")
+        except:
+            raise
+        finally:
+            shutil.rmtree(stub)
+            os.chdir(oldcwd)
 
     def test_update(self):
         """
