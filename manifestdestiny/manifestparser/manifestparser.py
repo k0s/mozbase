@@ -792,7 +792,8 @@ class ManifestParser(object):
                     if not absolute:
                         relative_to = relative_to or os.path.dirname(os.path.abspath(write))
                     if should_write(write):
-                        manifest_file = file(write, 'w')
+                        new_manifest_file = write
+                        write = file(write, 'w')
                 else:
                     # manifest in each directory via [include:]
                     in_tree = True
@@ -801,7 +802,7 @@ class ManifestParser(object):
                 # write is a file-like object
                 manifests = write
         else:
-            # return in-memory buffer
+            # use in-memory buffer
             write = StringIO()
             manifests = write
 
@@ -937,8 +938,11 @@ class ManifestParser(object):
             manifests.seek(0)
             manifests = [manifests]
 
-        
-            
+        if new_manifest_file:
+            # close new file
+            write.close()
+            manifests = [write]
+
         # make a ManifestParser instance
         return cls(manifests=manifests)
 
