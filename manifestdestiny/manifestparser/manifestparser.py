@@ -781,10 +781,8 @@ class ManifestParser(object):
             return True
 
         # determine output
-        string = (basestring,)
         in_tree = False # whether to output files of name `write` in each directory
-        new manifest_file = False
-        _relative_to = relative_to # cache
+        new_manifest_file = None # name of new manifest file opened
         absolute = True # whether to output absolute path names as names
         if write:
             if isinstance(write, string):
