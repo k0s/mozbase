@@ -103,6 +103,13 @@ class TestManifestparser(unittest.TestCase):
         self.assertEqual(buffer.getvalue().strip(),
                          '[DEFAULT]\nfoo = bar\n\n[fleem]\n\n[include/flowers]\nblue = ocean\nred = roses\nyellow = submarine')
 
+    def test_include_relative(self):
+        """
+        test including relative paths;
+        see https://bugzilla.mozilla.org/show_bug.cgi?id=658671
+        """
+
+        manifest = os.path.join(here, 'include-relative', 'manifest.ini')
 
     def test_directory_to_manifest(self):
         """
