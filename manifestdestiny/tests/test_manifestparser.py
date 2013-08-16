@@ -112,9 +112,12 @@ class TestManifestparser(unittest.TestCase):
         include = os.path.join(here, 'include-relative')
         manifest = os.path.join(include, 'manifest.ini')
         parser = ManifestParser(manifests=(manifest,))
-        self.assertEqual(len(parser.tests), 1)
+        self.assertEqual(len(parser.tests), 2)
         test = os.path.join(include, 'bar', 'bar.js')
         self.assertEqual(test, parser.tests[0]['path'])
+        test = os.path.join(include, 'foo', 'test.js')
+        self.assertEqual(test, parser.tests[1]['path'])
+
 
     def test_directory_to_manifest(self):
         """
