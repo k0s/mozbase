@@ -271,7 +271,7 @@ def read_ini(fp, variables=None, default='DEFAULT',
         filename = os.path.normpath(fp)
         fp = file(fp)
     else:
-        raise NotImplementedError("TODO")
+        filename = getattr(fp, 'name', str(fp))
 
     sections = []
     key = value = None
@@ -316,7 +316,7 @@ def read_ini(fp, variables=None, default='DEFAULT',
 
         # if there aren't any sections yet, something bad happen
         if not section_names:
-            raise Exception('No sections found: %s' % filename)
+            raise Exception('No sections found: "%s"' % filename)
 
         # (key, value) pair
         for separator in separators:
