@@ -268,7 +268,7 @@ def read_ini(fp, variables=None, default='DEFAULT',
         variables = {}
 
     if isinstance(fp, basestring):
-        filename = fp
+        filename = os.path.normpath(fp)
         fp = file(fp)
     else:
         raise NotImplementedError("TODO")
