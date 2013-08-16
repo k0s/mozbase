@@ -111,7 +111,8 @@ class TestManifestparser(unittest.TestCase):
 
         include = os.path.join(here, 'include-relative')
         manifest = os.path.join(include, 'manifest.ini')
-        parser = ManifestParser(manifests=(manifest,))
+        fp = file(manifest, 'w')
+        parser = ManifestParser(manifests=(fp,))
         self.assertEqual(len(parser.tests), 2)
         test = os.path.join(include, 'bar', 'bar.js')
         self.assertEqual(test, parser.tests[0]['path'])
