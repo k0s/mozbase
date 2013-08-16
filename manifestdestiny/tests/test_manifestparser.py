@@ -109,9 +109,12 @@ class TestManifestparser(unittest.TestCase):
         see https://bugzilla.mozilla.org/show_bug.cgi?id=658671
         """
 
-        manifest = os.path.join(here, 'include-relative', 'manifest.ini')
+        include = os.path.join(here, 'include-relative')
+        manifest = os.path.join(include, 'manifest.ini')
         parser = ManifestParser(manifests=(manifest,))
         self.assertEqual(len(parser.tests), 1)
+        test = os.path.join(include, 'bar', 'bar.js')
+        self.assertEqual(test, parser.tests[0]['path'])
 
     def test_directory_to_manifest(self):
         """
