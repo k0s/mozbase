@@ -564,8 +564,7 @@ class ManifestParser(object):
 
                 # only add files that match a pattern
                 if pattern:
-                    filenames = [filename for filename in filenames
-                                 if fnmatch(filename, pattern)]
+                    filenames = fnmatch.filter(filenames, pattern)
 
                 # only add files that have one of the extensions
                 if extensions:
