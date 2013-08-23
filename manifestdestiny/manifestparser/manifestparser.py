@@ -402,6 +402,7 @@ class ManifestParser(object):
                         raise IOError(message)
                     else:
                         sys.stderr.write("%s\n" % message)
+                        continue
                 include_defaults = data.copy()
                 self._read(root, include_file, include_defaults)
                 continue
