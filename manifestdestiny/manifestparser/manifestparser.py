@@ -432,6 +432,12 @@ class ManifestParser(object):
             self.tests.append(test)
 
     def read(self, *filenames, **defaults):
+        """
+        read and add manifests from file paths or file-like objects
+
+        filenames -- file paths or file-like objects to read as manifests
+        defaults -- default variables
+        """
 
         # ensure all files exist
         missing = [filename for filename in filenames
