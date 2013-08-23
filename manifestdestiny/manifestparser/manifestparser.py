@@ -451,7 +451,7 @@ class ManifestParser(object):
             here = None
             if isinstance(filename, string):
                 here = os.path.dirname(os.path.abspath(filename))
-                defaults['here'] = here
+                defaults['here'] = here # directory of master .ini file
 
             if self.rootdir is None:
                 # set the root directory
