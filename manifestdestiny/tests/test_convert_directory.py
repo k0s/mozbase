@@ -146,13 +146,12 @@ class TestDirectoryConversion(unittest.TestCase):
             self.assertEqual([i['name'] for i in parser.tests],
                              files)
             self.assertTrue(os.path.exists('manifest.ini'))
-#             self.assertEqual('\n'.join([line.strip()
-#                                         for line in file('manifest.ini').readlines()
-#                                         if line.strip()]),
-# """[../bar]
-# [../fleem]
-# [../foo]
-# [subfile]""")
+
+            # compare with parsed manifest
+            parser = ManifestParser(manifests=('manifest.ini',))
+            names = parser.get('name')
+            self.assertEqual(names, files)
+
         except:
             raise
         finally:
