@@ -174,7 +174,7 @@ class TestDirectoryConversion(unittest.TestCase):
         manifest_file = os.path.join(newtempdir, 'manifest.ini')
         manifest_contents = str(convert([tempdir], relative_to=tempdir))
         with file(manifest_file, 'w') as f:
-                f.write(manifest_contents)
+            f.write(manifest_contents)
 
         # get the manifest
         manifest = ManifestParser(manifests=(manifest_file,))
