@@ -24,6 +24,7 @@ from StringIO import StringIO
 relpath = os.path.relpath
 string = (basestring,)
 
+
 # expr.py
 # from:
 # http://k0s.org/mozilla/hg/expressionparser
@@ -747,80 +748,13 @@ class ManifestParser(object):
                 destination = os.path.join(rootdir, _relpath)
                 shutil.copy(source, destination)
 
+    ### directory importers
+
     @classmethod
-    def from_directories(cls, directories, pattern=None, ignore=(), write=None, overwrite=False, relative_to=None):
+    def _walk_directories(cls, directories, function, pattern=None, ignore=()):
         """
-        convert directories to a simple manifest; returns ManifestParser instance
-        - pattern : shell pattern (glob) or patterns of filenames to match
-        - ignore : directory names to ignore
-        - write : filename of manifests to write
-        - overwrite : whether to overwrite existing files of given name
-        - relative_to : write paths relative to this directory;
-          overrides what is specified by `write`
-
-        `write` may be specified to choose relative v absolute paths:
-        - if `write` is a filename (sans `os.path.sep`), then a file of name
-          `write` will be written in each of `directories`
-        - if `write` is relative path and directories are descendents,
-          paths should be relative to this path
-        - if `write` is an absolute path or directories are not
-          descendents, path should be absolute.
-        While this puts higher complexity on `write`, it is not
-        ambiguous:  pass (e.g.) './manifest.ini' v 'manifest.ini'
-        if relative paths to the current directory is desired,
-        or (e.g.) `os.path.abspath('manifest.ini')` if absolute
-        paths are desired.
-
-        Write can also take a file-like object; in this case,
-        paths will be governed by `relative_to`.
+        internal function to import directories
         """
-
-        def is_root(path):
-            """handle filesystem root (could go -> mozfile)"""
-            # from http://stackoverflow.com/questions/12041525/a-system-independent-way-using-python-to-get-the-root-directory-drive-on-which-p
-            return not os.path.split(path)[1]
-
-        def should_write(path):
-            """should we write the manifest?"""
-            if os.path.exists(path) and overwrite:
-                return False
-            return True
-
-        # determine output
-        in_tree = False # whether to output files of name `write` in each directory
-        opened_manifest_file = None # name of opened manifest file
-        new_manifest_file = None # name of new manifest file opened
-        absolute = True # whether to output absolute path names as names
-        if write:
-            if isinstance(write, string):
-                # write is a path
-                if os.path.sep in write:
-                    absolute = os.path.isabs(write)
-                    if not absolute:
-                        relative_to = relative_to or os.path.dirname(os.path.abspath(write))
-                    if should_write(write):
-                        opened_manifest_file = os.path.abspath(write)
-                        if not os.path.exists(write):
-                            new_manifest_file = opened_manifest_file
-                        manifests = [opened_manifest_file]
-                        write = file(write, 'w')
-                    else:
-                        return cls(write)
-                else:
-                    # manifest in each directory via [include:]
-                    in_tree = True
-                    manifests = []
-            else:
-                # write is a file-like object
-                manifests = write
-        else:
-            # use in-memory buffer
-            write = StringIO()
-            manifests = write
-
-        # location specified by relative_to
-        if relative_to:
-            absolute = is_root(relative_to)
 
         class FilteredDirectoryContents(object):
             """class to filter directory contents"""
@@ -841,7 +775,6 @@ class ManifestParser(object):
 
             def __call__(self, directory):
                 """returns 2-tuple: dirnames, filenames"""
-
                 directory = os.path.realpath(directory)
                 if directory not in self._cache:
                     dirnames, filenames = self.contents(directory)
@@ -918,45 +851,109 @@ class ManifestParser(object):
                 # filter out directory names
                 dirnames[:] = _dirnames
 
-                if in_tree:
-                    # write a manifest for each directory
-                    manifest_path = os.path.join(dirpath, write)
-                    if (dirnames or filenames) and should_write(manifest_path):
-                        with file(manifest_path, 'w') as manifest:
-                            for dirname in dirnames:
-                                print >> manifest, '[include:%s]' % os.path.join(dirname, write)
-                            for filename in filenames:
-                                print >> manifest, '[%s]' % filename
+                # call callback function
+                function(directory, dirpath, dirnames, filenames)
 
-                        # add to list of manifests
-                        if index <= len(manifests):
-                            manifests.append(manifest_path)
-                else:
-                    # absolute paths
-                    filenames = [os.path.join(dirpath, filename)
-                                 for filename in filenames]
-                    # ensure new manifest isn't added
-                    filenames = [filename for filename in filenames
-                                 if filename != new_manifest_file]
-                    # normalize paths
-                    if not absolute and relative_to:
-                        filenames = [relpath(filename, relative_to)
-                                     for filename in filenames]
+    @classmethod
+    def populate_directory_manifests(cls, directories, filename, pattern=None, ignore=(), overwrite=False):
+        """
+        walks directories and writes manifests of name `filename` in-place; returns `cls` instance populated
+        with the given manifests
 
-                    # write to manifest
-                    print >> write, '\n'.join(['[%s]' % (filename)
+        filename -- filename of manifests to write
+        pattern -- shell pattern (glob) or patterns of filenames to match
+        ignore -- directory names to ignore
+        overwrite -- whether to overwrite existing files of given name
+        """
+
+        manifest_dict = {}
+        seen = [] # top-level directories seen
+
+        if os.path.basename(filename) != filename:
+            raise IOError("filename should not include directory name")
+
+        # no need to hit directories more than once
+        _directories = directories
+        directories = []
+        for directory in _directories:
+            if directory not in directories:
+                directories.append(directory)
+
+        def callback(directory, dirpath, dirnames, filenames):
+            """write a manifest for each directory"""
+
+            manifest_path = os.path.join(dirpath, filename)
+            if (dirnames or filenames) and not (os.path.exists(manifest_path) and overwrite):
+                with file(manifest_path, 'w') as manifest:
+                    for dirname in dirnames:
+                        print >> manifest, '[include:%s]' % os.path.join(dirname, write)
+                    for filename in filenames:
+                        print >> manifest, '[%s]' % filename
+
+                # add to list of manifests
+                if dirpath in directories:
+                    manifest_dict[dirpath] = manifest_path
+
+        # walk the directories to gather files
+        cls._walk_directories(directories, callback, pattern=pattern, ignore=ignore)
+        # get manifests
+        manifests = [manifest_dict(directory) for directory in _directories]
+
+        # create a `cls` instance with the manifests
+        cls(manifests=manifests)
+
+    @classmethod
+    def from_directories(cls, directories, pattern=None, ignore=(), write=None, relative_to=None):
+        """
+        convert directories to a simple manifest; returns ManifestParser instance
+
+        pattern -- shell pattern (glob) or patterns of filenames to match
+        ignore -- directory names to ignore
+        write -- filename or file-like object of manifests to write;
+                 if `None` then a StringIO instance will be created
+        relative_to -- write paths relative to this path;
+                       if false then the paths are absolute
+        """
+
+
+        # determine output
+        opened_manifest_file = None # name of opened manifest file
+        absolute = not relative_to # whether to output absolute path names as names
+        if isinstance(write, string):
+            opened_manifest_file = write
+            write = file(write, 'w')
+        if write is None:
+            write = StringIO()
+
+        # walk the directories, generating manifests
+        def callback(directory, dirpath, dirnames, filename):
+
+            # absolute paths
+            filenames = [os.path.join(dirpath, filename)
+                         for filename in filenames]
+            # ensure new manifest isn't added
+            filenames = [filename for filename in filenames
+                         if filename != new_manifest_file]
+            # normalize paths
+            if not absolute and relative_to:
+                filenames = [relpath(filename, relative_to)
+                             for filename in filenames]
+
+            # write to manifest
+            print >> write, '\n'.join(['[%s]' % (filename)
                                                for filename in filenames])
-
-        if not isinstance(manifests, list):
-            # manifests/write is a file-like object
-            # rewind buffer
-            manifests.flush()
-            manifests.seek(0)
-            manifests = [manifests]
 
         if opened_manifest_file:
             # close file
             write.close()
+            manifests = [opened_manifest_file]
+        else:
+            # manifests/write is a file-like object;
+            # rewind buffer
+            write.flush()
+            write.seek(0)
+            manifests = [write]
+
 
         # make a ManifestParser instance
         return cls(manifests=manifests)
