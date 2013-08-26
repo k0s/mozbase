@@ -887,8 +887,8 @@ class ManifestParser(object):
                 with file(manifest_path, 'w') as manifest:
                     for dirname in dirnames:
                         print >> manifest, '[include:%s]' % os.path.join(dirname, write)
-                    for filename in filenames:
-                        print >> manifest, '[%s]' % filename
+                    for _filename in filenames:
+                        print >> manifest, '[%s]' % _filename
 
                 # add to list of manifests
                 manifest_dict.setdefault(directory, manifest_path)
