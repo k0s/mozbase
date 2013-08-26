@@ -896,7 +896,7 @@ class ManifestParser(object):
         # walk the directories to gather files
         cls._walk_directories(directories, callback, pattern=pattern, ignore=ignore)
         # get manifests
-        manifests = [manifest_dict(directory) for directory in _directories]
+        manifests = [manifest_dict[directory] for directory in _directories]
 
         # create a `cls` instance with the manifests
         return cls(manifests=manifests)
