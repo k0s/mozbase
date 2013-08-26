@@ -932,7 +932,7 @@ class ManifestParser(object):
                          for filename in filenames]
             # ensure new manifest isn't added
             filenames = [filename for filename in filenames
-                         if filename != new_manifest_file]
+                         if filename != opened_manifest_file]
             # normalize paths
             if not absolute and relative_to:
                 filenames = [relpath(filename, relative_to)
