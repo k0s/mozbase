@@ -886,7 +886,7 @@ class ManifestParser(object):
             if (dirnames or filenames) and not (os.path.exists(manifest_path) and overwrite):
                 with file(manifest_path, 'w') as manifest:
                     for dirname in dirnames:
-                        print >> manifest, '[include:%s]' % os.path.join(dirname, write)
+                        print >> manifest, '[include:%s]' % os.path.join(dirname, filename)
                     for _filename in filenames:
                         print >> manifest, '[%s]' % _filename
 
