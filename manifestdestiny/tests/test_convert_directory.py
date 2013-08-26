@@ -134,30 +134,6 @@ class TestDirectoryConversion(unittest.TestCase):
             shutil.rmtree(stub)
             os.chdir(oldcwd)
 
-    def test_relpath_implicit(self):
-        oldcwd = os.getcwd()
-        stub = self.create_stub()
-        try:
-            # subdir via write specification
-            files = ['../bar', '../fleem', '../foo', 'subfile']
-            subdir = os.path.join(stub, 'subdir')
-            os.chdir(subdir)
-            parser = convert([stub], pattern='*[!.]*', write='./manifest.ini')
-            self.assertEqual([i['name'] for i in parser.tests],
-                             files)
-            self.assertTrue(os.path.exists('manifest.ini'))
-
-            # compare with parsed manifest
-            parser = ManifestParser(manifests=('manifest.ini',))
-            names = parser.get('name')
-            self.assertEqual(names, files)
-
-        except:
-            raise
-        finally:
-            shutil.rmtree(stub)
-            os.chdir(oldcwd)
-
     def test_update(self):
         """
         Test our ability to update tests from a manifest and a directory of
