@@ -86,7 +86,7 @@ class TestDirectoryConversion(unittest.TestCase):
 
         stub = self.create_stub()
         try:
-            ManifestParser.populate_directory_manifests([stub], write='manifest.ini', ignore=('subdir',))
+            ManifestParser.populate_directory_manifests([stub], filename='manifest.ini', ignore=('subdir',))
             parser = ManifestParser()
             parser.read(os.path.join(stub, 'manifest.ini'))
             self.assertEqual([i['name'] for i in parser.tests],
