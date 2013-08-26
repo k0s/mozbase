@@ -942,6 +942,9 @@ class ManifestParser(object):
             print >> write, '\n'.join(['[%s]' % (filename)
                                                for filename in filenames])
 
+
+        cls._walk_directories(directories, callback, pattern=pattern, ignore=ignore)
+
         if opened_manifest_file:
             # close file
             write.close()
