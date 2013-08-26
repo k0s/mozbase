@@ -900,7 +900,7 @@ class ManifestParser(object):
         manifests = [manifest_dict(directory) for directory in _directories]
 
         # create a `cls` instance with the manifests
-        cls(manifests=manifests)
+        return cls(manifests=manifests)
 
     @classmethod
     def from_directories(cls, directories, pattern=None, ignore=(), write=None, relative_to=None):
