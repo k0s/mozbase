@@ -891,8 +891,7 @@ class ManifestParser(object):
                         print >> manifest, '[%s]' % filename
 
                 # add to list of manifests
-                if dirpath in directories:
-                    manifest_dict[dirpath] = manifest_path
+                manifest_dict.setdefault(directory, manifest_path)
 
         # walk the directories to gather files
         cls._walk_directories(directories, callback, pattern=pattern, ignore=ignore)
