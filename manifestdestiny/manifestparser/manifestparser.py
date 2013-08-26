@@ -925,7 +925,7 @@ class ManifestParser(object):
             write = StringIO()
 
         # walk the directories, generating manifests
-        def callback(directory, dirpath, dirnames, filename):
+        def callback(directory, dirpath, dirnames, filenames):
 
             # absolute paths
             filenames = [os.path.join(dirpath, filename)
