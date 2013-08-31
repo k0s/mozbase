@@ -410,6 +410,7 @@ class ManifestParser(object):
             _relpath = path
             if '://' not in path: # don't futz with URLs
                 path = normalize_path(path)
+                path = os.path.normpath(path)
                 if not os.path.isabs(path):
                     path = os.path.join(here, path)
                 _relpath = relpath(path, self.rootdir)
