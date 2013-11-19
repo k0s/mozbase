@@ -38,7 +38,7 @@ class Runner(object):
         self.symbols_path = symbols_path
 
     @abstractmethod
-    def start(self, *args, **kwargs):
+    def start(self):
         """Run the process"""
 
     def wait(self, timeout=None):
