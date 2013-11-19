@@ -10,9 +10,8 @@ from mozprocess.processhandler import ProcessHandler
 import mozcrash
 import mozlog
 
-# we can replace this method with 'abc'
-# (http://docs.python.org/library/abc.html) when we require Python 2.6+
 def abstractmethod(method):
+  """decorator to mark a method as abstract"""
   line = method.func_code.co_firstlineno
   filename = method.func_code.co_filename
   def not_implemented(*args, **kwargs):
@@ -40,31 +39,7 @@ class Runner(object):
 
     @abstractmethod
     def start(self, *args, **kwargs):
-        """
-        Run the process
-        """
-
-        # ensure you are stopped
-        self.stop()
-
-        # ensure the profile exists
-        if not self.profile.exists():
-            self.profile.reset()
-            assert self.profile.exists(), "%s : failure to reset profile" % self.__class__.__name__
-
-        cmd = self._wrap_command(self.command)
-
-        # attach a debugger, if specified
-        if debug_args:
-            cmd = list(debug_args) + cmd
-
-        if interactive:
-            self.process_handler = subprocess.Popen(cmd, env=self.env)
-            # TODO: other arguments
-        else:
-            # this run uses the managed processhandler
-            self.process_handler = self.process_class(cmd, env=self.env, **self.kp_kwargs)
-            self.process_handler.run(timeout, outputTimeout)
+        """Run the process"""
 
     def wait(self, timeout=None):
         """
