@@ -40,10 +40,10 @@ class TestPlumbing(unittest.TestCase):
         number = 11
         process = mozprocess.ProcessHandlerMixin(self.command('count.py', str(number)))
         process.run()
-        pipe = mozprocess.ProcessHandlerMixin(self.command('toupper.py'),
-                                              stdin=process.proc.stdout,
-                                              outputHandler=(OutputHandler(),)
-            )
+        pipe = mozprocess.ProcessHandler(self.command('toupper.py'),
+                                         stdin=process.proc.stdout,
+                                         processOutputLine=[OutputHandler()]
+                                         )
         pipe.run()
         status = process.wait()
 
