@@ -4,6 +4,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import imp
 import mozprocess
 import os
 import sys
@@ -34,7 +35,8 @@ class TestPlumbing(unittest.TestCase):
         https://bugzilla.mozilla.org/show_bug.cgi?id=924253
         """
 
-        process = mozprocess.ProcessHandlerMixin(self.command('count.py', '11'))
+        number = 11
+        process = mozprocess.ProcessHandlerMixin(self.command('count.py', str(number)))
         process.run()
         pipe = mozprocess.ProcessHandler(self.command('toupper.py'), stdin=process.proc.stdout)
         pipe.run()

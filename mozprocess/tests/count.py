@@ -27,6 +27,16 @@ def int2str(integer):
     digits.extend([mapping[digit] for digit in str(integer)])
     return ' '.join(digits)
 
+def count(integer):
+    if integer > 0:
+        for i in range(1, integer+1):
+            yield int2str(i)
+    elif integer < 0:
+        for i in range(-1, integer-1, -1):
+            yield int2str(i)
+    else: # 0
+        yield int2str(i)
+
 def main(args=sys.argv[1:]):
 
     usage = '%prog [options] int <int> <...>'
@@ -39,14 +49,8 @@ def main(args=sys.argv[1:]):
             integer = int(arg)
         except ValueError:
             raise # TODO
-        if integer > 0:
-            for i in range(1, integer+1):
-                print int2str(i)
-        elif integer < 0:
-            for i in range(-1, integer-1, -1):
-                print int2str(i)
-        else: # 0
-            print int2str(i)
+        for number in count(integer):
+            print number
 
 if __name__ == '__main__':
     main()
