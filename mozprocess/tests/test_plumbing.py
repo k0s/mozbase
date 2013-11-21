@@ -31,6 +31,13 @@ class TestPlumbing(unittest.TestCase):
     def command(self, command, *args):
         return [sys.executable, os.path.join(here, command)] + list(args)
 
+    def write(self, filename, lines):
+        directory = os.environ['HOME']
+        filename = os.path.join(directory, filename)
+        with file(filename, 'w') as f:
+            for index, line in enumerate(lines):
+                f.write('%d - %s\n' % (index, line))
+
     def test_pipe(self):
         """
         test piping one subprocess to another; see
@@ -60,6 +67,8 @@ class TestPlumbing(unittest.TestCase):
             print "Difference at line %s:" % (i+1)
             print "Actual:\n%s" % line
             print "Should be:\n%s" % results[i]
+            self.write('results.txt', results)
+            self.write('actual.txt', pipe.output)
         self.assertEqual(len(results), len(pipe.output))
         ###        self.assertEqual(results, pipe.output)
 
