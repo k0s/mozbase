@@ -37,15 +37,21 @@ class TestPlumbing(unittest.TestCase):
         https://bugzilla.mozilla.org/show_bug.cgi?id=924253
         """
 
-        number = 11
+        number = 11000
         process = mozprocess.ProcessHandlerMixin(self.command('count.py', str(number)))
         process.run()
         pipe = mozprocess.ProcessHandler(self.command('toupper.py'),
                                          stdin=process.proc.stdout,
-                                         processOutputLine=[OutputHandler()]
+                                         processOutputLine=[lambda x: None]
                                          )
         pipe.run()
         status = process.wait()
+
+        results = [toupper.toupper(i) for i in count.count(number)]
+        self.assertEqual(len(results), number)
+        self.assertEqual(len(results), len(pipe.output))
+        self.assertEqual(results, pipe.output)
+
 
 if __name__ == '__main__':
     unittest.main()
