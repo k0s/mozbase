@@ -11,6 +11,8 @@ import sys
 import unittest
 
 here = os.path.dirname(os.path.abspath(__file__))
+count = imp.load_source('count', os.path.join(here, 'count.py'))
+toupper = imp.load_source('toupper', os.path.join(here, 'toupper.py'))
 
 class OutputHandler(object):
     """
@@ -38,7 +40,10 @@ class TestPlumbing(unittest.TestCase):
         number = 11
         process = mozprocess.ProcessHandlerMixin(self.command('count.py', str(number)))
         process.run()
-        pipe = mozprocess.ProcessHandler(self.command('toupper.py'), stdin=process.proc.stdout)
+        pipe = mozprocess.ProcessHandlerMixin(self.command('toupper.py'),
+                                              stdin=process.proc.stdout,
+                                              outputHandler=(OutputHandler(),)
+            )
         pipe.run()
         status = process.wait()
 
