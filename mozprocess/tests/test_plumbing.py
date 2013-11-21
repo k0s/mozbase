@@ -49,8 +49,19 @@ class TestPlumbing(unittest.TestCase):
 
         results = [toupper.toupper(i) for i in count.count(number)]
         self.assertEqual(len(results), number)
+        if len(results) != len(pipe.output):
+            for i in range(len(results)):
+                if i >= len(pipe.output) - 1:
+                    line = '(NULL)'
+                    break
+                if results[i] != pipe.output[i]:
+                    line = pipe.output[i]
+                    break
+            print "Difference at line %s:" % (i+1)
+            print "Actual:\n%s" % line
+            print "Should be:\n%s" % results[i]
         self.assertEqual(len(results), len(pipe.output))
-        self.assertEqual(results, pipe.output)
+        ###        self.assertEqual(results, pipe.output)
 
 
 if __name__ == '__main__':
