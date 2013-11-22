@@ -28,6 +28,8 @@ class TestPlumbing(unittest.TestCase):
     test piping mozprocess subprocesses
     """
 
+    number = 11000  # number to count to for count.py
+
     def command(self, command, *args):
         return [sys.executable, os.path.join(here, command)] + list(args)
 
@@ -44,8 +46,7 @@ class TestPlumbing(unittest.TestCase):
         https://bugzilla.mozilla.org/show_bug.cgi?id=924253
         """
 
-        number = 11000
-        process = mozprocess.ProcessHandlerMixin(self.command('count.py', str(number)))
+        process = mozprocess.ProcessHandlerMixin(self.command('count.py', str(self.number)))
         process.run()
         pipe = mozprocess.ProcessHandler(self.command('toupper.py'),
                                          stdin=process.proc.stdout,
@@ -54,8 +55,8 @@ class TestPlumbing(unittest.TestCase):
         pipe.run()
         status = process.wait()
 
-        results = [toupper.toupper(i) for i in count.count(number)]
-        self.assertEqual(len(results), number)
+        results = [toupper.toupper(i) for i in count.count(self.number)]
+        self.assertEqual(len(results), self.number)
         if len(results) != len(pipe.output):
             for i in range(len(results)):
                 if i >= len(pipe.output) - 1:
@@ -70,8 +71,10 @@ class TestPlumbing(unittest.TestCase):
             self.write('results.txt', results)
             self.write('actual.txt', pipe.output)
         self.assertEqual(len(results), len(pipe.output))
-        ###        self.assertEqual(results, pipe.output)
+        self.assertEqual(results, pipe.output)
 
+    def test_subprocess(self):
+        """control test for subprocess"""
 
 if __name__ == '__main__':
     unittest.main()
