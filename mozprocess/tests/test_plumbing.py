@@ -7,6 +7,7 @@
 import imp
 import mozprocess
 import os
+import subprocess
 import sys
 import unittest
 
@@ -33,6 +34,12 @@ class TestPlumbing(unittest.TestCase):
     def command(self, command, *args):
         return [sys.executable, os.path.join(here, command)] + list(args)
 
+    def count_command(self):
+        return self.command('count.py', str(self.number))
+
+    def toupper_command(self):
+        return self.command('toupper.py')
+
     def write(self, filename, lines):
         directory = os.environ['HOME']
         filename = os.path.join(directory, filename)
@@ -46,9 +53,9 @@ class TestPlumbing(unittest.TestCase):
         https://bugzilla.mozilla.org/show_bug.cgi?id=924253
         """
 
-        process = mozprocess.ProcessHandlerMixin(self.command('count.py', str(self.number)))
+        process = mozprocess.ProcessHandlerMixin(self.count_command())
         process.run()
-        pipe = mozprocess.ProcessHandler(self.command('toupper.py'),
+        pipe = mozprocess.ProcessHandler(self.toupper_command(),
                                          stdin=process.proc.stdout,
                                          processOutputLine=[lambda x: None]
                                          )
