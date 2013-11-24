@@ -9,7 +9,9 @@ import mozprocess
 import os
 import subprocess
 import sys
+import tempfile
 import unittest
+from StringIO import StringIO
 
 here = os.path.dirname(os.path.abspath(__file__))
 count = imp.load_source('count', os.path.join(here, 'count.py'))
@@ -40,6 +42,10 @@ class TestPlumbing(unittest.TestCase):
     def toupper_command(self):
         return self.command('toupper.py')
 
+    def results(self):
+        """correct results"""
+        return [toupper.toupper(i) for i in count.count(self.number)]
+
     def write(self, filename, lines):
         directory = os.environ['HOME']
         filename = os.path.join(directory, filename)
@@ -61,8 +67,9 @@ class TestPlumbing(unittest.TestCase):
                                          )
         pipe.run()
         status = process.wait()
+        self.assertEqual(status, 0)
 
-        results = [toupper.toupper(i) for i in count.count(self.number)]
+        results = self.results()
         self.assertEqual(len(results), self.number)
         if len(results) != len(pipe.output):
             for i in range(len(results)):
@@ -81,7 +88,44 @@ class TestPlumbing(unittest.TestCase):
         self.assertEqual(results, pipe.output)
 
     def test_subprocess(self):
-        """control test for subprocess"""
+        """
+        control test for subprocess; see
+        http://docs.python.org/2/library/subprocess.html#replacing-shell-pipeline
+        """
+
+        p1 = subprocess.Popen(self.count_command(), stdout=subprocess.PIPE)
+        p2 = subprocess.Popen(self.toupper_command(),
+                              stdin=p1.stdout,
+                              stdout=subprocess.PIPE)
+        p1.stdout.close()
+        output = p2.communicate()[0]
+        lines = output.splitlines()
+        self.assertEqual(len(lines), self.number)
+
+    def test_processOutputLine(self):
+        """
+        add a processOutputLine form of pipe
+        """
+
+        class Buffer(tempfile.SpooledTemporaryFile):
+            def __call__(self, line):
+                pos = self.tell()
+                self.write(line + '\n')
+                pos = self.seek(pos)
+
+
+        _buffer = Buffer()
+        process = mozprocess.ProcessHandlerMixin(self.count_command(),
+                                                 processOutputLine=[_buffer],
+                                                 )
+        process.run()
+        pipe = mozprocess.ProcessHandler(self.toupper_command(),
+                                         stdin=_buffer,
+                                         processOutputLine=[lambda x: None]
+                                         )
+        pipe.run()
+        status = process.wait()
+        self.assertEqual(status, 0)
 
 if __name__ == '__main__':
     unittest.main()
