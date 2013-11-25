@@ -18,6 +18,35 @@ here = os.path.dirname(os.path.abspath(__file__))
 count = imp.load_source('count', os.path.join(here, 'count.py'))
 toupper = imp.load_source('toupper', os.path.join(here, 'toupper.py'))
 
+class readmethod(object):
+    """decorator for read methods"""
+    def __init__(self, method):
+        self.method = method
+    def __call__(self, *args, **kwargs):
+        print "Hi! %s" % self.method
+        return self.method(*args, **kwargs)
+
+class Buffer(TemporaryFile):
+
+    def __call__(self, line):
+        pos = self.tell()
+        self.write(line + '\n')
+        #                print pos
+        #self.seek(pos)
+
+    @readmethod
+    def read(self, *args):
+        return TemporaryFile.read(self, *args)
+
+    @readmethod
+    def readline(self, *args):
+        return TemporaryFile.readline(self, *args)
+
+    @readmethod
+    def readlines(self, *args):
+        return TemporaryFile.readlines(self, *args)
+
+
 class OutputHandler(object):
     """
     handler to store lines of output
@@ -137,38 +166,21 @@ class TestPlumbing(unittest.TestCase):
         lines = output.splitlines()
         self.assertEqual(len(lines), self.number)
 
+    def test_subprocess_buffer(self):
+        """
+        illustrate use of subprocess.Popen with a file-like buffer
+        """
+        p1 = subprocess.Popen(self.count_command(), stdout=subprocess.PIPE)
+        p2 = subprocess.Popen(self.toupper_command(),
+                              stdin=p1.stdout,
+                              stdout=subprocess.PIPE)
+        
+
     def test_processOutputLine(self):
         """
         add a processOutputLine form of pipe
         """
 
-        class readmethod(object):
-            """decorator for read methods"""
-            def __init__(self, method):
-                self.method = method
-            def __call__(self, *args, **kwargs):
-                print "Hi! %s" % self.method
-                return self.method(*args, **kwargs)
-
-        class Buffer(TemporaryFile):
-
-            def __call__(self, line):
-                pos = self.tell()
-                self.write(line + '\n')
-                #                print pos
-                #self.seek(pos)
-
-            @readmethod
-            def read(self, *args):
-                return TemporaryFile.read(self, *args)
-
-            @readmethod
-            def readline(self, *args):
-                return TemporaryFile.readline(self, *args)
-
-            @readmethod
-            def readlines(self, *args):
-                return TemporaryFile.readlines(self, *args)
 
 
 
