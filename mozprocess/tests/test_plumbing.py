@@ -54,6 +54,24 @@ class TestPlumbing(unittest.TestCase):
             for index, line in enumerate(lines):
                 f.write('%d - %s\n' % (index, line))
 
+    def compare_lists(self, expected, output):
+        """
+        compare two lists
+        """
+        if (len(expected) != len(output)) or (expected != output):
+            for i in range(len(expected)):
+                if i >= len(output) - 1:
+                    line = '(NULL)'
+                    break
+                if expected[i] != output[i]:
+                    line = output[i]
+                    break
+            print "Difference at line %s:" % (i+1)
+            print "Actual:\n%s" % line
+            print "Should be:\n%s" % results[i]
+        self.assertEqual(len(expected), len(output))
+        self.assertEqual(expected, output)
+
     def test_output(self):
         """
         test stdout processing
