@@ -37,8 +37,10 @@ class TestPlumbing(unittest.TestCase):
     def command(self, command, *args):
         return [sys.executable, os.path.join(here, command)] + list(args)
 
-    def count_command(self):
-        return self.command('count.py', str(self.number))
+    def count_command(self, number=None):
+        if number is None:
+            number = self.number
+        return self.command('count.py', str(number))
 
     def toupper_command(self):
         return self.command('toupper.py')
@@ -68,7 +70,7 @@ class TestPlumbing(unittest.TestCase):
                     break
             print "Difference at line %s:" % (i+1)
             print "Actual:\n%s" % line
-            print "Should be:\n%s" % results[i]
+            print "Should be:\n%s" % expected[i]
         self.assertEqual(len(expected), len(output))
         self.assertEqual(expected, output)
 
@@ -76,16 +78,15 @@ class TestPlumbing(unittest.TestCase):
         """
         test stdout processing
         """
-        process = mozprocess.ProcessHandler(self.count_command(),
+        number = 1000000
+        process = mozprocess.ProcessHandler(self.count_command(number),
                                             processOutputLine=[lambda x: None])
         process.run()
         status = process.wait()
         output = process.output
         self.assertEqual(status, 0)
-        results = list(count.count(100000))
-        if results != output:
-            pass # TODO
-        self.assertEqual(output, results)
+        results = list(count.count(number))
+        self.compare_lists(results, output)
 
     def test_pipe(self):
         """
