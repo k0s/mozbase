@@ -54,6 +54,21 @@ class TestPlumbing(unittest.TestCase):
             for index, line in enumerate(lines):
                 f.write('%d - %s\n' % (index, line))
 
+    def test_output(self):
+        """
+        test stdout processing
+        """
+        process = mozprocess.ProcessHandler(self.count_command(),
+                                            processOutputLine=[lambda x: None])
+        process.run()
+        status = process.wait()
+        output = process.output
+        self.assertEqual(status, 0)
+        results = list(count.count(100000))
+        if results != output:
+            pass # TODO
+        self.assertEqual(output, results)
+
     def test_pipe(self):
         """
         test piping one subprocess to another; see
