@@ -174,7 +174,7 @@ class TestPlumbing(unittest.TestCase):
         p2 = subprocess.Popen(self.toupper_command(),
                               stdin=p1.stdout,
                               stdout=subprocess.PIPE)
-        
+        output = p2.communicate()[0]
 
     def test_processOutputLine(self):
         """
