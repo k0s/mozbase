@@ -31,6 +31,7 @@ class Buffer(TemporaryFile):
     def __call__(self, line):
         pos = self.tell()
         self.write(line + '\n')
+        self.flush()
         #                print pos
         #self.seek(pos)
 
@@ -170,9 +171,19 @@ class TestPlumbing(unittest.TestCase):
         """
         illustrate use of subprocess.Popen with a file-like buffer
         """
-        p1 = subprocess.Popen(self.count_command(), stdout=subprocess.PIPE)
+        _buffer = Buffer()
+        p1 = subprocess.Popen(self.count_command(), stdout=_buffer)
         p2 = subprocess.Popen(self.toupper_command(),
-                              stdin=p1.stdout,
+                              stdin=_buffer,
+                              stdout=subprocess.PIPE)
+        output = p2.communicate()[0]
+        # ^ this doesn't work! :(
+
+    def test_subprocess_pipe(self):
+        _buffer = Buffer()
+        p1 = subprocess.Popen(self.count_command(), stdout=_buffer)
+        p2 = subprocess.Popen(self.toupper_command(),
+                              stdin=_buffer,
                               stdout=subprocess.PIPE)
         output = p2.communicate()[0]
 
