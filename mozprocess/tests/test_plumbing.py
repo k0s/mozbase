@@ -152,6 +152,21 @@ class TestPlumbing(unittest.TestCase):
             self.assertEqual(len(results), len(pipe.output))
             self.assertEqual(results, pipe.output)
 
+    def test_shell_pipe(self):
+        """test using shell pipe -- `|` -- on systems which support it"""
+
+        command = ' | '.join([subprocess.list2cmdline(command)
+                              for command in (self.count_command(),
+                                              self.toupper_command())
+                              ])
+        # subprocess
+        process = subprocess.Popen(command,
+                                   stdout=subprocess.PIPE,
+                                   shell=True)
+        output = process.communicate()[0]
+        lines = output.splitlines()
+        self.assertEqual(len(lines), self.number)
+
     def test_subprocess(self):
         """
         control test for subprocess; see
